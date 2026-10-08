@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="bikinlapak">
+	<rect width="32" height="32" rx="9" fill="#1F5A50" />
+	<g fill="#E8A63A">
+		<circle cx="5.33" cy="6.4" r="5.33" />
+		<circle cx="16" cy="6.4" r="5.33" />
+		<circle cx="26.67" cy="6.4" r="5.33" />
+	</g>
+</svg>

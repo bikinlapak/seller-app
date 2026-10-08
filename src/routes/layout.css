@@ -1,0 +1,50 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/forms';
+
+/*
+ * Token desain bikinlapak — diambil dari repo comingsoon (src/routes/layout.css)
+ * supaya dasbor penjual dan halaman publik terasa satu merek.
+ * Kalau token di sana berubah, salin perubahannya ke sini.
+ */
+@theme {
+	--font-display: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+	--font-sans: 'Figtree', ui-sans-serif, system-ui, sans-serif;
+	--font-mono: ui-monospace, Menlo, Monaco, 'Cascadia Code', monospace;
+
+	--color-pine-100: #e3eeea;
+	--color-pine-200: #cfe2dc;
+	--color-pine-500: #2e6a5f;
+	--color-pine-600: #1f5a50;
+	--color-pine-800: #163f39;
+
+	--color-kunyit-100: #fbefd6;
+	--color-kunyit-400: #e8a63a;
+	--color-kunyit-700: #8a5a10;
+
+	--color-cream: #faf6ef;
+	--color-cream-soft: #fffbf4;
+
+	--color-ink: #2a2521;
+	--color-ink-muted: #5e554d;
+	--color-ink-faint: #8a7f73;
+
+	--color-line: #eae2d6;
+
+	--color-sukses: #22663f;
+	--color-sukses-bg: #e2f1e7;
+	--color-error: #b3261e;
+	--color-error-bg: #fbe4e2;
+
+	--radius-card: 1rem;
+	--shadow-e1: 0 0 0 1px #eae2d6, 0 1px 3px rgb(42 37 33 / 0.06);
+}
+
+@layer base {
+	body {
+		background: var(--color-cream);
+		color: var(--color-ink);
+		font-family: var(--font-sans);
+		line-height: 1.5;
+		-webkit-font-smoothing: antialiased;
+	}
+}
