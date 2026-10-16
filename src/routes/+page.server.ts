@@ -1,6 +1,6 @@
 import { redirect } from '@sveltejs/kit';
 
-// Belum ada halaman depan; penjual langsung masuk ke beranda dasbor.
+// Chat adalah inti aplikasi, jadi penjual langsung masuk ke Asisten Lapak.
 export const load = () => {
-	redirect(307, '/beranda');
+	redirect(307, '/asisten');
 };

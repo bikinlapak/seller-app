@@ -2,41 +2,81 @@
 @plugin '@tailwindcss/forms';
 
 /*
- * Token desain bikinlapak — diambil dari repo comingsoon (src/routes/layout.css)
- * supaya dasbor penjual dan halaman publik terasa satu merek.
- * Kalau token di sana berubah, salin perubahannya ke sini.
+ * Token desain bikinlapak — dasarnya diambil dari repo comingsoon
+ * (src/routes/layout.css) supaya dasbor penjual dan halaman publik terasa satu
+ * merek. Kalau token di sana berubah, salin perubahannya ke sini.
+ *
+ * Token bertanda "kanvas" diturunkan dari kanvas desain "bikinlapak Seller App
+ * Funnel" (21 artboard, 390x844). Lihat docs/plan/04-design-system.md.
  */
 @theme {
-	--font-display: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+	/* Young Serif untuk display: dipakai di seluruh artboard kanvas. */
+	--font-display: 'Young Serif', ui-serif, Georgia, serif;
 	--font-sans: 'Figtree', ui-sans-serif, system-ui, sans-serif;
 	--font-mono: ui-monospace, Menlo, Monaco, 'Cascadia Code', monospace;
 
+	/* --- Pine (warna utama) --- */
 	--color-pine-100: #e3eeea;
-	--color-pine-200: #cfe2dc;
+	--color-pine-200: #d9e6e2; /* kanvas: teks sekunder di atas pine */
+	--color-pine-300: #a9cbbf; /* kanvas: garis kartu hasil */
+	--color-pine-400: #7fa79e; /* kanvas: garis tombol di atas pine */
 	--color-pine-500: #2e6a5f;
 	--color-pine-600: #1f5a50;
 	--color-pine-800: #163f39;
 
+	/* --- Kunyit (aksen) --- */
 	--color-kunyit-100: #fbefd6;
 	--color-kunyit-400: #e8a63a;
 	--color-kunyit-700: #8a5a10;
+	--color-kunyit-800: #5c3d0a; /* kanvas: teks di atas kunyit-100 */
+	--color-kunyit-900: #3d2805; /* kanvas: teks di atas kunyit-400 */
 
+	/* --- Dasar & permukaan --- */
 	--color-cream: #faf6ef;
 	--color-cream-soft: #fffbf4;
+	--color-surface: #ffffff; /* kanvas: kartu, header, komposer */
+	--color-surface-warn: #fff8f0; /* kanvas: blok "belum yakin" */
 
+	/* --- Teks --- */
 	--color-ink: #2a2521;
-	--color-ink-muted: #5e554d;
+	--color-ink-label: #4f4740; /* kanvas: label bagian */
+	--color-ink-muted: #685e55; /* kanvas: teks sekunder */
 	--color-ink-faint: #8a7f73;
 
-	--color-line: #eae2d6;
+	/* --- Garis --- */
+	--color-line: #e6ddcf; /* kanvas: garis kartu & header */
+	--color-line-soft: #f2eadd; /* kanvas: pemisah di dalam kartu */
+	--color-line-strong: #d6ccbc; /* kanvas: garis tombol sekunder */
+	--color-chip: #eae2d6; /* kanvas: latar chip netral (label AI) */
 
+	/* --- Status: aman --- */
 	--color-sukses: #22663f;
 	--color-sukses-bg: #e2f1e7;
+
+	/* --- Status: bahaya / lewat tanggal (kanvas: lebih hangat dari merah) --- */
+	--color-bahaya: #8e2f1c;
+	--color-bahaya-kuat: #7a2818;
+	--color-bahaya-bg: #f3dccb;
+
+	/* --- Dipakai comingsoon; jangan dihapus --- */
 	--color-error: #b3261e;
 	--color-error-bg: #fbe4e2;
 
-	--radius-card: 1rem;
+	/* --- Vision (kanvas: kotak deteksi di atas foto) --- */
+	--color-foto-dasar: #3a3128;
+	--color-kotak-yakin: #8fd3b6;
+
+	/* --- Radius --- */
+	--radius-card: 1rem; /* 16px — panel & bagian */
+	--radius-row: 14px; /* kanvas: baris daftar, tombol utama */
+	--radius-field: 12px; /* kanvas: input, tombol ikon */
+	--radius-action: 10px; /* kanvas: tombol di dalam kartu */
+	--radius-tile: 10px; /* kanvas: kotak ikon 36px */
+
 	--shadow-e1: 0 0 0 1px #eae2d6, 0 1px 3px rgb(42 37 33 / 0.06);
+
+	/* Tinggi bar bawah, dipakai untuk padding aman halaman. */
+	--spacing-navbar: 4.75rem;
 }
 
 @layer base {
@@ -46,5 +86,34 @@
 		font-family: var(--font-sans);
 		line-height: 1.5;
 		-webkit-font-smoothing: antialiased;
+	}
+
+	/* Target sentuh minimal 44px di seluruh aplikasi — lihat kanvas. */
+	button,
+	[role='tab'],
+	[role='radio'] {
+		touch-action: manipulation;
+	}
+}
+
+@layer components {
+	/*
+	 * Bentuk gelembung chat dari kanvas: sudut 4px menghadap pengirim.
+	 * Dipakai juga oleh kartu asisten (<article>), yang bentuknya sama.
+	 */
+	.bubble-agent {
+		border-radius: 4px 16px 16px 16px;
+	}
+
+	.bubble-staff {
+		border-radius: 16px 4px 16px 16px;
+	}
+
+	/* Label bagian: 12px, 700, huruf besar, spasi lega. */
+	.label-section {
+		font-size: 12px;
+		font-weight: 700;
+		letter-spacing: 0.04em;
+		text-transform: uppercase;
 	}
 }

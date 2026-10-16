@@ -1,11 +1,18 @@
-export type NavItem = { href: string; label: string };
+import type { NamaIkon } from '#lib/components/Icon.svelte';
 
-// Menu utama dasbor. Urutannya mengikuti urutan di sidebar.
+export type NavItem = { href: string; label: string; ikon: NamaIkon };
+
+/*
+ * Bar bawah dari kanvas desain: lima tujuan, Asisten lebih dulu karena chat
+ * adalah inti aplikasi — tidak ada halaman "Beranda" tersendiri.
+ * "Saya" membuka Pengaturan AI.
+ */
 export const NAV_ITEMS: readonly NavItem[] = [
-	{ href: '/beranda', label: 'Beranda' },
-	{ href: '/produk', label: 'Produk' },
-	{ href: '/toko', label: 'Toko Online' },
-	{ href: '/pengaturan', label: 'Pengaturan' }
+	{ href: '/asisten', label: 'Asisten', ikon: 'asisten' },
+	{ href: '/produk', label: 'Produk', ikon: 'produk' },
+	{ href: '/stok', label: 'Stok', ikon: 'stok' },
+	{ href: '/toko', label: 'Toko', ikon: 'toko' },
+	{ href: '/saya', label: 'Saya', ikon: 'saya' }
 ];
 
 /** Menu aktif juga untuk sub-halamannya, mis. `/produk/123` menyalakan "Produk". */
