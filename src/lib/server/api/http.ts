@@ -1,36 +1,35 @@
 import { SELLER_SVC_AUDIENCE, SELLER_SVC_MOCK, SELLER_SVC_URL } from '$app/env/private';
 
 /*
- * Satu-satunya pintu ke seller-svc, dan hanya dipanggil dari sisi server
- * (load/actions), supaya alamat internal layanan tidak bocor ke browser.
+ * The only door to seller-svc, and it is called from the server side alone
+ * (load functions and form actions), so the service's internal address never
+ * reaches the browser.
  *
- * Selama SELLER_SVC_MOCK aktif, `ambil` tidak menyentuh jaringan dan
- * mengembalikan data tiruan. Jalur aslinya tetap ada dan dipakai apa adanya
- * begitu endpoint seller-svc berhenti menjawab 501 — lihat
- * ../../../../docs/plan/02-routing.md.
+ * While SELLER_SVC_MOCK is on, `get` and `post` touch no network and return
+ * fixtures. The real path is written and exercised as soon as the flag is
+ * off — see ../../../../docs/plan/02-routing.md.
  */
-export const pakaiTiruan = SELLER_SVC_MOCK;
+export const useMocks = SELLER_SVC_MOCK;
 
 export function sellerSvcUrl(path: string): string {
 	return `${SELLER_SVC_URL}${path.startsWith('/') ? path : `/${path}`}`;
 }
 
 /*
- * Di Cloud Run, seller-svc tidak mengizinkan pemanggil tanpa IAM — endpoint
- * /v1/actions tidak boleh bisa dijangkau dari internet. Jadi seller-app
- * menukar identitas runtime-nya dengan ID token lewat metadata server, lalu
- * mengirimkannya sebagai bearer.
+ * On Cloud Run, seller-svc admits no caller without IAM — /v1/actions must not
+ * be reachable from the internet. So seller-app exchanges its runtime identity
+ * for an ID token at the metadata server and sends it as a bearer.
  *
- * Di lokal SELLER_SVC_AUDIENCE kosong, tidak ada metadata server, dan
- * seller-svc memang tidak meminta apa-apa — jadi seluruh jalur ini dilewati.
+ * Locally SELLER_SVC_AUDIENCE is empty, there is no metadata server, and a
+ * local seller-svc asks for nothing — so this whole path is skipped.
  */
 const METADATA_ID_TOKEN =
 	'http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/identity';
 
-let tokenTersimpan: { nilai: string; kedaluwarsa: number } | null = null;
+let cached: { value: string; expiresAt: number } | null = null;
 
-/** Ambil `exp` dari payload JWT; `0` kalau tidak terbaca. */
-function kedaluwarsaToken(jwt: string): number {
+/** Read `exp` from the JWT payload; `0` if it cannot be parsed. */
+function expiryOf(jwt: string): number {
 	try {
 		const payload = jwt.split('.')[1];
 		const json = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8'));
@@ -43,10 +42,10 @@ function kedaluwarsaToken(jwt: string): number {
 async function idToken(fetch: typeof globalThis.fetch): Promise<string | null> {
 	if (!SELLER_SVC_AUDIENCE) return null;
 
-	// Perbarui satu menit sebelum habis, supaya tidak ada permintaan yang
-	// berangkat dengan token yang kedaluwarsa di tengah jalan.
-	if (tokenTersimpan && Date.now() < tokenTersimpan.kedaluwarsa - 60_000) {
-		return tokenTersimpan.nilai;
+	// Refresh a minute early, so no request leaves with a token that expires
+	// in flight.
+	if (cached && Date.now() < cached.expiresAt - 60_000) {
+		return cached.value;
 	}
 
 	try {
@@ -56,62 +55,61 @@ async function idToken(fetch: typeof globalThis.fetch): Promise<string | null> {
 		);
 		if (!res.ok) return null;
 
-		const nilai = (await res.text()).trim();
-		if (!nilai) return null;
+		const value = (await res.text()).trim();
+		if (!value) return null;
 
-		// Kalau exp tidak terbaca, simpan 45 menit saja (token metadata
-		// berumur satu jam) — lebih baik sering meminta daripada memakai
-		// token mati.
-		const exp = kedaluwarsaToken(nilai) || Date.now() + 45 * 60_000;
-		tokenTersimpan = { nilai, kedaluwarsa: exp };
-		return nilai;
+		// If exp cannot be read, keep it for 45 minutes (metadata tokens last
+		// an hour) — better to ask often than to use a dead token.
+		const expiresAt = expiryOf(value) || Date.now() + 45 * 60_000;
+		cached = { value, expiresAt };
+		return value;
 	} catch {
 		return null;
 	}
 }
 
-async function header(fetch: typeof globalThis.fetch): Promise<Record<string, string>> {
+async function authHeader(fetch: typeof globalThis.fetch): Promise<Record<string, string>> {
 	const token = await idToken(fetch);
 	return token ? { authorization: `Bearer ${token}` } : {};
 }
 
 /**
- * Ambil satu sumber daya. `tiruan` dipanggil hanya kalau mode tiruan aktif,
- * jadi fixture tidak ikut ke bundel produksi lewat jalur ini.
+ * Fetch one resource. `mock` is only called when mock mode is on, so fixtures
+ * do not travel into a production bundle along this path.
  *
- * Gagal menghubungi backend mengembalikan `null`, bukan melempar: halaman
- * tetap tampil dan bagian yang kosong merender tombol coba lagi.
+ * A failure to reach the backend returns `null` rather than throwing: the page
+ * still renders and the empty section shows a quiet retry.
  */
-export async function ambil<T>(
+export async function get<T>(
 	fetch: typeof globalThis.fetch,
 	path: string,
-	tiruan: () => T
+	mock: () => T
 ): Promise<T | null> {
-	if (pakaiTiruan) return tiruan();
+	if (useMocks) return mock();
 	try {
-		const res = await fetch(sellerSvcUrl(path), { headers: await header(fetch) });
+		const res = await fetch(sellerSvcUrl(path), { headers: await authHeader(fetch) });
 		return res.ok ? ((await res.json()) as T) : null;
 	} catch {
 		return null;
 	}
 }
 
-/** Kirim aksi (approve/edit/reject). Hasilnya dipakai form action. */
-export async function kirim<T>(
+/** Send an action (approve / edit / reject). The form action uses the result. */
+export async function post<T>(
 	fetch: typeof globalThis.fetch,
 	path: string,
 	body: unknown,
 	idempotencyKey: string,
-	tiruan: () => T
+	mock: () => T
 ): Promise<T | null> {
-	if (pakaiTiruan) return tiruan();
+	if (useMocks) return mock();
 	try {
 		const res = await fetch(sellerSvcUrl(path), {
 			method: 'POST',
 			headers: {
 				'content-type': 'application/json',
 				'idempotency-key': idempotencyKey,
-				...(await header(fetch))
+				...(await authHeader(fetch))
 			},
 			body: JSON.stringify(body)
 		});
@@ -123,11 +121,11 @@ export async function kirim<T>(
 
 export type Health = { status: string; version: string };
 
-/** `null` kalau seller-svc tidak bisa dihubungi — halaman tetap tampil. */
+/** `null` when seller-svc cannot be reached — the page still renders. */
 export async function fetchHealth(fetch: typeof globalThis.fetch): Promise<Health | null> {
-	if (pakaiTiruan) return { status: 'tiruan', version: 'mock' };
+	if (useMocks) return { status: 'mock', version: 'mock' };
 	try {
-		const res = await fetch(sellerSvcUrl('/healthz'), { headers: await header(fetch) });
+		const res = await fetch(sellerSvcUrl('/healthz'), { headers: await authHeader(fetch) });
 		return res.ok ? ((await res.json()) as Health) : null;
 	} catch {
 		return null;

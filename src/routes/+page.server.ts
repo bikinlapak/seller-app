@@ -1,6 +1,6 @@
 import { redirect } from '@sveltejs/kit';
 
-// Chat adalah inti aplikasi, jadi penjual langsung masuk ke Asisten Lapak.
+// Chat is the core of the app, so a merchant lands straight in the assistant.
 export const load = () => {
-	redirect(307, '/asisten');
+	redirect(307, '/assistant');
 };

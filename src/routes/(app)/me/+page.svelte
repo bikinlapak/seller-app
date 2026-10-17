@@ -2,30 +2,31 @@
 	import ChatHeader from '#lib/components/ChatHeader.svelte';
 
 	/*
-	 * Pengaturan AI (artboard C6). Layar ini yang membuat asistennya terasa
-	 * milik penjual: mode, model per tugas, seberapa mandiri, dan batas biaya.
+	 * AI settings (artboard C6). This is the screen that makes the assistant
+	 * feel owned rather than imposed: mode, model per task, how autonomous it
+	 * may be, and what it is allowed to cost.
 	 *
-	 * "Prediksi stok" sengaja ditandai sistem — angkanya dari TimesFM lewat
-	 * BigQuery, bukan dari chat, dan itu dikatakan apa adanya di layar.
+	 * "Stock forecasting" is deliberately marked as a system number — it comes
+	 * from TimesFM via BigQuery, not from chat, and the screen says so.
 	 */
 	let { data } = $props();
 
-	// Nilai awal dari server; sesudah itu pilihan penjual yang menang.
+	// Initial value from the server; after that the merchant's choice wins.
 	// svelte-ignore state_referenced_locally
-	let mode = $state(data.pengaturan?.modeDipilih ?? '');
+	let mode = $state(data.settings?.selectedMode ?? '');
 </script>
 
-<svelte:head><title>Pengaturan AI · bikinlapak</title></svelte:head>
+<svelte:head><title>AI settings · bikinlapak</title></svelte:head>
 
-<ChatHeader kembali="/asisten" judul="Pengaturan AI" />
+<ChatHeader back="/assistant" title="AI settings" />
 
-{#if data.pengaturan}
-	{@const p = data.pengaturan}
+{#if data.settings}
+	{@const s = data.settings}
 	<main class="flex flex-1 flex-col gap-3 px-4 py-3">
 		<section class="flex flex-col gap-2">
-			<h2 class="label-section m-0 text-ink-muted">Mode asisten</h2>
-			<div role="radiogroup" aria-label="Mode asisten" class="grid grid-cols-3 gap-2">
-				{#each p.mode as m (m.id)}
+			<h2 class="label-section m-0 text-ink-muted">Assistant mode</h2>
+			<div role="radiogroup" aria-label="Assistant mode" class="grid grid-cols-3 gap-2">
+				{#each s.modes as m (m.id)}
 					<button
 						role="radio"
 						aria-checked={mode === m.id}
@@ -38,55 +39,55 @@
 						]}
 					>
 						<span class="text-sm font-bold">{m.label}</span>
-						<span class="text-[11px] leading-tight text-ink-muted">{m.catatan}</span>
+						<span class="text-[11px] leading-tight text-ink-muted">{m.note}</span>
 					</button>
 				{/each}
 			</div>
 		</section>
 
 		<section class="rounded-row border border-line bg-surface px-3.5 py-1">
-			<h2 class="label-section m-0 pt-2.5 pb-0.5 text-ink-muted">Model per tugas</h2>
-			{#each p.model as m (m.tugas)}
+			<h2 class="label-section m-0 pt-2.5 pb-0.5 text-ink-muted">Model per task</h2>
+			{#each s.models as m (m.task)}
 				<div class="flex min-h-[46px] items-center justify-between gap-2 border-t border-line-soft">
 					<span class="flex flex-col gap-px text-sm">
-						{m.tugas}
-						{#if m.catatan}<span class="text-[11px] text-ink-muted">{m.catatan}</span>{/if}
+						{m.task}
+						{#if m.note}<span class="text-[11px] text-ink-muted">{m.note}</span>{/if}
 					</span>
 					<span
 						class={[
 							'flex-none rounded-full px-2.5 py-[3px] text-xs font-bold',
-							m.sistem ? 'bg-chip text-ink-label' : 'bg-pine-100 text-pine-800'
-						]}>{m.nama}</span
+							m.system ? 'bg-chip text-ink-label' : 'bg-pine-100 text-pine-800'
+						]}>{m.name}</span
 					>
 				</div>
 			{/each}
 		</section>
 
 		<section class="rounded-row border border-line bg-surface px-3.5 py-1">
-			<h2 class="label-section m-0 pt-2.5 pb-0.5 text-ink-muted">Seberapa mandiri</h2>
-			{#each p.otonomi as o (o.id)}
+			<h2 class="label-section m-0 pt-2.5 pb-0.5 text-ink-muted">How autonomous</h2>
+			{#each s.autonomy as a (a.id)}
 				<label
 					class="flex min-h-[52px] items-center justify-between gap-2.5 border-t border-line-soft text-sm"
 				>
 					<span class="flex flex-col gap-px">
-						{o.label}
-						{#if o.catatan}<span class="text-[11px] text-ink-muted">{o.catatan}</span>{/if}
+						{a.label}
+						{#if a.note}<span class="text-[11px] text-ink-muted">{a.note}</span>{/if}
 					</span>
 					<input
 						type="checkbox"
-						checked={o.aktif}
+						checked={a.enabled}
 						class="size-[22px] flex-none rounded text-pine-600 focus:ring-pine-600"
 					/>
 				</label>
 			{/each}
 			<div class="flex min-h-[46px] items-center justify-between gap-2 border-t border-line-soft">
-				<label for="bahasa" class="text-sm">Bahasa &amp; gaya</label>
+				<label for="language" class="text-sm">Language &amp; tone</label>
 				<select
-					id="bahasa"
+					id="language"
 					class="min-h-9 rounded-lg border border-line-strong bg-cream py-0 pr-7 pl-2 text-[13px] font-semibold text-ink"
 				>
-					{#each p.bahasa.pilihan as b (b)}
-						<option selected={b === p.bahasa.dipilih}>{b}</option>
+					{#each s.language.options as option (option)}
+						<option selected={option === s.language.selected}>{option}</option>
 					{/each}
 				</select>
 			</div>
@@ -94,32 +95,29 @@
 
 		<section class="flex flex-col gap-1.5 rounded-row border border-line bg-surface px-3.5 py-3">
 			<div class="flex justify-between gap-2 text-sm">
-				<span class="font-semibold">Batas biaya AI</span>
-				<span class="flex-none font-bold">{p.biaya.batasLabel}</span>
+				<span class="font-semibold">AI spend cap</span>
+				<span class="flex-none font-bold">{s.budget.capLabel}</span>
 			</div>
 			<div
 				class="h-1.5 overflow-hidden rounded-[3px] bg-line-soft"
 				role="img"
-				aria-label="Terpakai {p.biaya.terpakaiPersen}%"
+				aria-label="{s.budget.usedPercent}% used"
 			>
-				<div
-					class="h-1.5 rounded-[3px] bg-kunyit-400"
-					style="width: {p.biaya.terpakaiPersen}%"
-				></div>
+				<div class="h-1.5 rounded-[3px] bg-kunyit-400" style="width: {s.budget.usedPercent}%"></div>
 			</div>
-			<p class="m-0 text-xs text-ink-muted">{p.biaya.catatan}</p>
+			<p class="m-0 text-xs text-ink-muted">{s.budget.note}</p>
 		</section>
 
 		<section class="flex flex-col gap-1 text-xs leading-relaxed text-ink-label">
-			<p class="m-0">{p.privasi}</p>
+			<p class="m-0">{s.privacy}</p>
 			<span class="flex gap-4">
-				<a href="/saya/riwayat" class="font-bold">Hapus riwayat chat</a>
-				<a href="/saya/unduh" class="font-bold">Unduh data saya</a>
+				<a href="/me/history" class="font-bold">Delete chat history</a>
+				<a href="/me/export" class="font-bold">Download my data</a>
 			</span>
 		</section>
 	</main>
 {:else}
 	<main class="flex flex-1 items-center justify-center px-6">
-		<p class="text-ink-muted">Pengaturan belum bisa dimuat.</p>
+		<p class="text-ink-muted">Settings could not be loaded.</p>
 	</main>
 {/if}

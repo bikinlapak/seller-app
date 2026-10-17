@@ -2,12 +2,12 @@ import { describe, expect, it } from 'vitest';
 import { isActive } from './nav.js';
 
 describe('isActive', () => {
-	it('menyala untuk rute itu sendiri dan sub-halamannya', () => {
-		expect(isActive('/produk', '/produk')).toBe(true);
-		expect(isActive('/produk/123', '/produk')).toBe(true);
+	it('lights up for the route itself and its sub-pages', () => {
+		expect(isActive('/products', '/products')).toBe(true);
+		expect(isActive('/products/123', '/products')).toBe(true);
 	});
 
-	it('tidak menyala untuk rute yang hanya berawalan sama', () => {
-		expect(isActive('/produk-baru', '/produk')).toBe(false);
+	it('does not light up for a route that merely shares a prefix', () => {
+		expect(isActive('/products-new', '/products')).toBe(false);
 	});
 });

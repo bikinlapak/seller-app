@@ -1,21 +1,21 @@
-import type { NamaIkon } from '#lib/components/Icon.svelte';
+import type { IconName } from '#lib/components/Icon.svelte';
 
-export type NavItem = { href: string; label: string; ikon: NamaIkon };
+export type NavItem = { href: string; label: string; icon: IconName };
 
 /*
- * Bar bawah dari kanvas desain: lima tujuan, Asisten lebih dulu karena chat
- * adalah inti aplikasi — tidak ada halaman "Beranda" tersendiri.
- * "Saya" membuka Pengaturan AI.
+ * The bottom bar from the design canvas: five destinations, Assistant first
+ * because chat is the core of the app — there is no separate home screen.
+ * "Me" opens AI settings.
  */
 export const NAV_ITEMS: readonly NavItem[] = [
-	{ href: '/asisten', label: 'Asisten', ikon: 'asisten' },
-	{ href: '/produk', label: 'Produk', ikon: 'produk' },
-	{ href: '/stok', label: 'Stok', ikon: 'stok' },
-	{ href: '/toko', label: 'Toko', ikon: 'toko' },
-	{ href: '/saya', label: 'Saya', ikon: 'saya' }
+	{ href: '/assistant', label: 'Assistant', icon: 'assistant' },
+	{ href: '/products', label: 'Products', icon: 'products' },
+	{ href: '/stock', label: 'Stock', icon: 'stock' },
+	{ href: '/shop', label: 'Shop', icon: 'shop' },
+	{ href: '/me', label: 'Me', icon: 'me' }
 ];
 
-/** Menu aktif juga untuk sub-halamannya, mis. `/produk/123` menyalakan "Produk". */
+/** A menu item stays active for its sub-pages: `/products/123` lights "Products". */
 export function isActive(pathname: string, href: string): boolean {
 	return pathname === href || pathname.startsWith(`${href}/`);
 }

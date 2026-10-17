@@ -1,180 +1,192 @@
 /*
- * Bentuk respons seller-svc. Ditulis tangan karena seller-app dan seller-svc
- * ada di repo berbeda, jadi tidak bisa berbagi skema saat compile. Tes di
- * src/lib/mock/fixtures.spec.ts memastikan data tiruan masih cocok dengan tipe
- * ini — kalau backend mengganti nama field, tes itu yang gagal lebih dulu.
+ * The shape of seller-svc responses. Hand-written because seller-app and
+ * seller-svc live in different repos and cannot share a schema at compile
+ * time. The test in src/lib/mock/fixtures.spec.ts keeps the fixtures honest
+ * against these types — if the backend renames a field, that test fails first.
  */
 
-/** Rupiah utuh, tanpa sen. Dihitung dan diformat di backend. */
+/** Whole rupiah, no cents. Computed and formatted by the backend. */
 export type Idr = number;
 
-export type Kondisi = 'aman' | 'hampir' | 'lewat';
+/**
+ * How urgent something is. Covers both stock cover and expiry, so it is a
+ * severity rather than a date state: `critical` means "act today", whether
+ * that is four kilos left or milk past its date.
+ */
+export type Severity = 'ok' | 'warn' | 'critical';
 
-export type Toko = {
-	nama: string;
-	pemilik: string;
-	sapaan: string; // "Pagi, Rima." — backend yang menentukan waktunya
+export type Shop = {
+	name: string;
+	owner: string;
+	greeting: string; // "Morning, Rima." — the backend decides the time of day
 };
 
-/* ---------- Asisten ---------- */
+/* ---------- Assistant ---------- */
 
-export type PerluPerhatian = {
+export type Attention = {
 	id: string;
-	judul: string;
+	title: string;
 	detail: string;
-	ikon: 'stok' | 'kedaluwarsa' | 'donasi';
+	icon: 'stock' | 'expiry' | 'donation';
 	href: string;
 };
 
-export type PerintahCepat = { label: string; href: string };
+export type QuickCommand = { label: string; href: string };
 
-export type AsistenHome = {
-	toko: Toko;
-	perhatian: PerluPerhatian[];
-	perintah: PerintahCepat[];
+export type AssistantHome = {
+	shop: Shop;
+	attention: Attention[];
+	commands: QuickCommand[];
 };
 
-/** Satu baris dalam thread. `tipe` memilih komponen yang merender. */
-export type Pesan =
-	| { id: string; penulis: 'staff'; tipe: 'teks'; waktu: string; teks: string }
+/** One line in a thread. `type` picks the component that renders it. */
+export type Message =
+	| { id: string; author: 'staff'; type: 'text'; time: string; text: string }
 	| {
 			id: string;
-			penulis: 'staff';
-			tipe: 'foto';
-			waktu: string;
-			fotoLabel: string;
-			kotak: KotakDeteksi[];
+			author: 'staff';
+			type: 'photo';
+			time: string;
+			photoLabel: string;
+			boxes: DetectionBox[];
 	  }
-	| { id: string; penulis: 'agent'; tipe: 'teks'; waktu: string; teks: string; aksi?: AksiInline[] }
-	| { id: string; penulis: 'sistem'; tipe: 'tanda'; waktu: string; teks: string }
-	| { id: string; penulis: 'agent'; tipe: 'kartu_saran'; waktu: string; kartu: KartuSaran }
-	| { id: string; penulis: 'agent'; tipe: 'kartu_hasil'; waktu: string; kartu: KartuHasil }
-	| { id: string; penulis: 'agent'; tipe: 'kartu_sisa'; waktu: string; kartu: KartuSisa };
+	| {
+			id: string;
+			author: 'agent';
+			type: 'text';
+			time: string;
+			text: string;
+			actions?: InlineAction[];
+	  }
+	| { id: string; author: 'system'; type: 'note'; time: string; text: string }
+	| { id: string; author: 'agent'; type: 'suggestion_card'; time: string; card: SuggestionCard }
+	| { id: string; author: 'agent'; type: 'result_card'; time: string; card: ResultCard }
+	| { id: string; author: 'agent'; type: 'waste_card'; time: string; card: WasteCard };
 
-export type KotakDeteksi = {
-	/* Persen terhadap ukuran foto, supaya tidak tergantung lebar layar. */
+export type DetectionBox = {
+	/* Percentages of the photo, so they survive any screen width. */
 	x: number;
 	y: number;
 	w: number;
 	h: number;
-	yakin: boolean;
+	confident: boolean;
 };
 
-export type AksiInline = {
+export type InlineAction = {
 	label: string;
-	/* Token aksi sekali pakai dari backend. null = tombol sekunder tanpa efek. */
+	/* Single-use action token from the backend. null = a secondary button. */
 	token: string | null;
-	utama: boolean;
+	primary: boolean;
 };
 
-/** B3 · Saran pesanan → PO. */
-export type KartuSaran = {
-	label: string; // "SARAN PESANAN"
-	keyakinan: string; // "Keyakinan tinggi"
-	judul: string; // "Kopi Arabika 1 kg · pesan 12 kg"
-	alasan: string;
-	/* Jumlah yang diusulkan; stepper tidak boleh melewatinya. */
-	jumlah: number;
-	satuan: string;
+/** B3 · Reorder suggestion → PO. */
+export type SuggestionCard = {
+	label: string; // "Reorder suggestion"
+	confidence: string; // "High confidence"
+	title: string; // "Arabica Beans 1 kg · order 12 kg"
+	reason: string;
+	/* The proposed quantity; the stepper must not exceed it. */
+	quantity: number;
+	unit: string;
 	token: string;
 };
 
-/** Kartu hasil setelah executor menulis ke worksh.io. */
-export type KartuHasil = {
-	judul: string; // "PO-0771 dibuat"
-	detail: string; // "9 kg · CV Sumber Kopi · tiba Rabu"
+/** The card shown after the executor has written to worksh.io. */
+export type ResultCard = {
+	title: string; // "PO-0771 created"
+	detail: string; // "9 kg · Sumber Kopi · arrives Wednesday"
 	waUrl: string;
 	poHref: string;
 };
 
-/** B5 · Foto sisa → AI vision → tujuan. */
-export type KartuSisa = {
-	label: string; // "SISA HARI INI · 3 BARANG"
-	nilai: string; // "±Rp167 rb"
-	barang: BarangSisa[];
-	ragu: BarangRagu | null;
-	catatan: string;
+/** B5 · Waste photo → AI vision → destination. */
+export type WasteCard = {
+	label: string; // "Today's leftovers · 3 items"
+	value: string; // "~Rp167k"
+	items: WasteItem[];
+	uncertain: UncertainItem | null;
+	note: string;
 };
 
-export type BarangSisa = {
+export type WasteItem = {
 	id: string;
-	nama: string;
-	jumlah: number;
-	satuan: string;
-	kondisi: Kondisi;
-	kondisiLabel: string; // "masih aman · 96%"
-	tujuan: Tujuan[];
-	peringatan?: string;
+	name: string;
+	quantity: number;
+	unit: string;
+	severity: Severity;
+	severityLabel: string; // "still good · 96%"
+	destinations: Destination[];
+	warning?: string;
 };
 
-export type Tujuan = { id: string; label: string; dipilih: boolean };
+export type Destination = { id: string; label: string; selected: boolean };
 
-export type BarangRagu = {
-	keyakinan: number;
-	kandidat: { id: string; nama: string }[];
+export type UncertainItem = {
+	confidence: number;
+	candidates: { id: string; name: string }[];
 };
 
 export type Thread = {
-	topik: string;
-	toko: Toko;
-	sumber: string | null; // "Gemini vision", tampil di baris meta
-	pesan: Pesan[];
+	topic: string;
+	shop: Shop;
+	source: string | null; // "Gemini vision", shown on the meta line
+	messages: Message[];
 };
 
-/* ---------- Produk ---------- */
+/* ---------- Products ---------- */
 
-export type Produk = {
+export type Product = {
 	id: string;
-	nama: string;
-	harga: Idr | null;
-	hargaLabel: string | null;
-	subjudul: string | null; // "Bahan · tidak dijual"
-	kategori: string;
-	stokLabel: string; // "20 stok", "14 · exp besok"
-	stokKondisi: Kondisi;
-	status: string; // "Baru", "Diskon 17.00", "PO dikirim"
-	statusPenting: boolean;
-	fotoWarna: string; // placeholder sampai ada gambar asli
+	name: string;
+	price: Idr | null;
+	priceLabel: string | null;
+	subtitle: string | null; // "Ingredient · not for sale"
+	category: string;
+	stockLabel: string; // "20 in stock", "14 · exp. tomorrow"
+	stockSeverity: Severity;
+	status: string; // "New", "Discount 17.00", "PO sent"
+	statusImportant: boolean;
+	photoColour: string; // placeholder until real images exist
 };
 
-export type DaftarProduk = {
+export type ProductList = {
 	total: number;
-	kategori: string[];
-	produk: Produk[];
+	categories: string[];
+	products: Product[];
 };
 
-/* ---------- Stok ---------- */
+/* ---------- Stock ---------- */
 
-export type RingkasanStok = { nilai: string; hampirHabis: number; hampirKedaluwarsa: number };
+export type StockSummary = { value: string; lowCount: number; expiringCount: number };
 
-export type BarisStok = {
+export type StockRow = {
 	id: string;
-	nama: string;
-	jumlahLabel: string; // "4 kg"
-	/* Persen bar; dihitung backend dari on-hand vs reorder point. */
-	persen: number;
-	kondisi: Kondisi;
-	kiri: string; // "Habis Kamis · 2,5 hari"
-	kanan: string; // "PO-0771 tiba Rabu"
-	kananPenting: boolean;
+	name: string;
+	quantityLabel: string; // "4 kg"
+	/* Bar percentage; computed by the backend from on-hand vs reorder point. */
+	percent: number;
+	severity: Severity;
+	left: string; // "Out Thursday · 2.5 days"
+	right: string; // "PO-0771 arrives Wednesday"
+	rightImportant: boolean;
 };
 
-export type DaftarStok = {
-	lokasi: string;
-	ringkasan: RingkasanStok;
-	baris: BarisStok[];
+export type StockList = {
+	location: string;
+	summary: StockSummary;
+	rows: StockRow[];
 };
 
-/* ---------- Pengaturan AI ---------- */
+/* ---------- AI settings ---------- */
 
-export type ModeAsisten = { id: string; label: string; catatan: string };
+export type AssistantMode = { id: string; label: string; note: string };
 
-export type PengaturanAI = {
-	mode: ModeAsisten[];
-	modeDipilih: string;
-	model: { tugas: string; catatan?: string; nama: string; sistem: boolean }[];
-	otonomi: { id: string; label: string; catatan?: string; aktif: boolean }[];
-	bahasa: { pilihan: string[]; dipilih: string };
-	biaya: { batasLabel: string; terpakaiPersen: number; catatan: string };
-	privasi: string;
+export type AiSettings = {
+	modes: AssistantMode[];
+	selectedMode: string;
+	models: { task: string; note?: string; name: string; system: boolean }[];
+	autonomy: { id: string; label: string; note?: string; enabled: boolean }[];
+	language: { options: string[]; selected: string };
+	budget: { capLabel: string; usedPercent: number; note: string };
+	privacy: string;
 };

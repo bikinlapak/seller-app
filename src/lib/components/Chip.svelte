@@ -1,20 +1,20 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	import type { Kondisi } from '#lib/types/api.js';
+	import type { Severity } from '#lib/types/api.js';
 
 	/*
-	 * Chip status. Warna mengikuti kondisi, tapi teksnya selalu ikut tampil —
-	 * status tidak pernah dibedakan dengan warna saja.
+	 * Status chip. The colour follows severity, but the text is always shown
+	 * too — status is never carried by colour alone.
 	 */
-	let { kondisi = 'aman', children }: { kondisi?: Kondisi; children: Snippet } = $props();
+	let { severity = 'ok', children }: { severity?: Severity; children: Snippet } = $props();
 
-	const gaya: Record<Kondisi, string> = {
-		aman: 'bg-pine-100 text-pine-800',
-		hampir: 'bg-kunyit-100 text-kunyit-800',
-		lewat: 'bg-bahaya-bg text-bahaya'
+	const styles: Record<Severity, string> = {
+		ok: 'bg-pine-100 text-pine-800',
+		warn: 'bg-kunyit-100 text-kunyit-800',
+		critical: 'bg-danger-bg text-danger'
 	};
 </script>
 
-<span class={['rounded-full px-2 py-0.5 text-xs font-bold', gaya[kondisi]]}>
+<span class={['rounded-full px-2 py-0.5 text-xs font-bold', styles[severity]]}>
 	{@render children()}
 </span>

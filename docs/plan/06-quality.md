@@ -24,10 +24,10 @@ costs money or trust:
   unknown type instead of throwing.
 - `SafetyChecklist` — the donation submit stays disabled until every item is
   ticked.
-- `KartuSaran` / `KartuSisa` — rendered against fixture payloads taken from
+- `SuggestionCard` / `WasteCard` — rendered against fixture payloads taken from
   the backend's golden files, so a contract change shows up here.
-- `KartuSisa` destination rules — an expired item offers no donation or sale,
-  `Buang` is never preselected, exactly one destination preselected per item.
+- `WasteCard` destination rules — an expired item offers no donation or sale,
+  `Discard` is never preselected, exactly one destination preselected per item.
   These are asserted today in `src/lib/mock/fixtures.spec.ts`.
 - `nav.ts` `isActive` — already tested (`nav.spec.ts`); extend for the nested
   routes.
@@ -39,12 +39,12 @@ field has to fail _somewhere_ — this is where.
 **E2E (Playwright, against staging with the seed tenant).** The demo path is the
 primary suite, run three times in CI to catch flake:
 
-1. Login → `/asisten` shows _Perlu perhatian hari ini_.
+1. Login → `/assistant` shows _Needs attention today_.
 2. Reorder card arrives over SSE → ask "kenapa 12?" → answer quotes a number
-   present in the payload → edit to 9 → _Setujui_ → result card with PO-0771.
-3. `/asisten/sisa` with a fixture image → items outlined → destinations →
+   present in the payload → edit to 9 → _Approve_ → result card with PO-0771.
+3. `/assistant/waste` with a fixture image → items outlined → destinations →
    donation with the checklist → tanda terima.
-4. `/asisten/laporan` diversion score has moved.
+4. `/assistant/report` diversion score has moved.
 
 Plus the paths that are not demoed but are easy to break: the Phase 1 wizard end
 to end, the CSV import with a bad row, and _terima barang_ with lot entry.
@@ -62,14 +62,14 @@ delivery, and an SSE stream over a venue network.
 Measured on a throttled mid-range Android profile (Lighthouse, 4× CPU, Slow 4G),
 baselined in Phase 0 and enforced in CI from Phase 3:
 
-| Metric                           | Budget                       |
-| -------------------------------- | ---------------------------- |
-| LCP on `/asisten`                | < 2.5 s                      |
-| INP                              | < 200 ms                     |
-| CLS                              | < 0.1                        |
-| JS transferred, first load       | < 180 KB gzipped             |
-| Lighthouse PWA                   | installable, all checks pass |
-| Time to first card on `/asisten` | < 1.5 s from navigation      |
+| Metric                             | Budget                       |
+| ---------------------------------- | ---------------------------- |
+| LCP on `/assistant`                | < 2.5 s                      |
+| INP                                | < 200 ms                     |
+| CLS                                | < 0.1                        |
+| JS transferred, first load         | < 180 KB gzipped             |
+| Lighthouse PWA                     | installable, all checks pass |
+| Time to first card on `/assistant` | < 1.5 s from navigation      |
 
 Levers, in the order they matter here: the backend returns screen-shaped
 aggregates (one request per screen), slow sections stream with `{#await}`, the

@@ -3,12 +3,12 @@
 	import BottomNav from '#lib/components/BottomNav.svelte';
 
 	/*
-	 * Kerangka aplikasi. Rancangannya ponsel 390x844, jadi lebar maksimum
-	 * dikunci dan dipusatkan di layar besar — desktop memakai aplikasi yang sama,
-	 * bukan tata letak lain.
+	 * The app frame. The design is a 390x844 phone, so the width is capped and
+	 * centred on a large screen — desktop gets the same app, not a different
+	 * layout.
 	 *
-	 * `bar` boleh dimatikan di layar thread, yang memakai komposer sebagai
-	 * penutup halaman, persis seperti di kanvas.
+	 * `bar` can be turned off on thread screens, which use the composer to
+	 * close the page, exactly as the canvas does.
 	 */
 	let { children, bar = true }: { children: Snippet; bar?: boolean } = $props();
 </script>

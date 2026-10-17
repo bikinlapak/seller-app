@@ -1,46 +1,46 @@
 <script lang="ts">
 	import Icon from '#lib/components/Icon.svelte';
-	import type { Toko } from '#lib/types/api.js';
+	import type { Shop } from '#lib/types/api.js';
 
 	let {
-		toko,
-		kembali,
-		judul,
-		pengaturanHref
-	}: { toko?: Toko; kembali?: string; judul?: string; pengaturanHref?: string } = $props();
+		shop,
+		back,
+		title,
+		settingsHref
+	}: { shop?: Shop; back?: string; title?: string; settingsHref?: string } = $props();
 </script>
 
 <header class="flex items-center gap-2 border-b border-line bg-surface py-2.5 pr-3 pl-1">
-	{#if kembali}
+	{#if back}
 		<a
-			href={kembali}
-			aria-label="Kembali"
+			href={back}
+			aria-label="Back"
 			class="flex size-11 flex-none items-center justify-center rounded-field text-ink"
 		>
-			<Icon nama="kiri" />
+			<Icon name="left" />
 		</a>
 	{/if}
 
-	{#if judul}
-		<span class="flex-1 text-[17px] font-bold">{judul}</span>
-	{:else if toko}
+	{#if title}
+		<span class="flex-1 text-[17px] font-bold">{title}</span>
+	{:else if shop}
 		<span
 			class="flex size-9 flex-none items-center justify-center rounded-[11px] bg-pine-600 font-display text-sm text-kunyit-400"
 			aria-hidden="true">bl</span
 		>
 		<span class="flex flex-1 flex-col gap-px">
-			<span class="text-base font-bold">Asisten Lapak</span>
-			<span class="text-xs text-ink-muted">AI · {toko.nama}</span>
+			<span class="text-base font-bold">Shop Assistant</span>
+			<span class="text-xs text-ink-muted">AI · {shop.name}</span>
 		</span>
 	{/if}
 
-	{#if pengaturanHref}
+	{#if settingsHref}
 		<a
-			href={pengaturanHref}
-			aria-label="Pengaturan AI"
+			href={settingsHref}
+			aria-label="AI settings"
 			class="flex size-11 flex-none items-center justify-center rounded-field text-ink"
 		>
-			<Icon nama="pengaturan" />
+			<Icon name="settings" />
 		</a>
 	{/if}
 </header>

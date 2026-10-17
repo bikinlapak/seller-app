@@ -4,7 +4,10 @@
 
 The seller dashboard for bikinlapak: product management and the online-store web builder, with data from worksh.io via `../seller-svc`. Stack: SvelteKit 3, Svelte 5 runes, Tailwind CSS 4, `adapter-node` (not static: there's server-side load and, later, sessions).
 
-All user-facing copy is Indonesian, and code comments are written in Indonesian too, the same as `../comingsoon`.
+**Everything is in English**: user-facing copy, code comments, identifiers,
+and the API contract. This diverges deliberately from `../comingsoon`, which
+is Indonesian — do not "fix" it back. Indonesian remains available as a
+language option in AI settings, but English is the product's default.
 
 ## Commands
 

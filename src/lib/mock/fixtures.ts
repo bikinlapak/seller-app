@@ -1,367 +1,367 @@
 /*
- * Data tiruan seller-svc, isinya diambil dari kanvas desain "bikinlapak Seller
- * App Funnel" supaya aplikasi langsung terlihat seperti rancangannya:
- * Toko Kopi Jasa, Kopi Arabika, Croissant Butter, PO-0771, CV Sumber Kopi.
+ * Stand-in seller-svc data, mirroring src/seed.rs on the backend so the two
+ * stay comparable. Content comes from the design canvas: Jasa Coffee Shop,
+ * Arabica Beans, PO-0771, Sumber Kopi.
  *
- * Dipakai hanya kalau SELLER_SVC_MOCK=true (lihat src/lib/server/api/http.ts).
- * Semua angka di sini pura-pura dihitung backend: frontend tidak menghitung
- * Rupiah atau hari sendiri, jadi mengganti sumber data cukup satu flag.
+ * Only used when SELLER_SVC_MOCK=true (see src/lib/server/api/http.ts). Every
+ * number here pretends to have been computed by the backend: the frontend
+ * formats no rupiah and counts no days, so swapping the source is one flag.
  */
 import type {
-	AsistenHome,
-	DaftarProduk,
-	DaftarStok,
-	PengaturanAI,
-	Thread,
-	Toko
+	AiSettings,
+	AssistantHome,
+	ProductList,
+	Shop,
+	StockList,
+	Thread
 } from '#lib/types/api.js';
 
-export const TOKO: Toko = {
-	nama: 'Toko Kopi Jasa',
-	pemilik: 'Rima',
-	sapaan: 'Pagi, Rima.'
+export const SHOP: Shop = {
+	name: 'Jasa Coffee Shop',
+	owner: 'Rima',
+	greeting: 'Morning, Rima.'
 };
 
-export const HOME: AsistenHome = {
-	toko: TOKO,
-	perhatian: [
+export const HOME: AssistantHome = {
+	shop: SHOP,
+	attention: [
 		{
-			id: 'p1',
-			judul: 'Kopi Arabika habis Kamis',
-			detail: 'Saran: pesan 12 kg',
-			ikon: 'stok',
-			href: '/asisten/pesan'
+			id: 'a1',
+			title: 'Arabica beans run out Thursday',
+			detail: 'Suggested: order 12 kg',
+			icon: 'stock',
+			href: '/assistant/reorder'
 		},
 		{
-			id: 'p2',
-			judul: '14 croissant kedaluwarsa besok',
-			detail: '8 diperkirakan tidak laku',
-			ikon: 'kedaluwarsa',
-			href: '/asisten/kedaluwarsa'
+			id: 'a2',
+			title: '14 croissants expire tomorrow',
+			detail: '8 are unlikely to sell',
+			icon: 'expiry',
+			href: '/assistant/expiry'
 		},
 		{
-			id: 'p3',
-			judul: 'Jemput donasi 21.30',
-			detail: '[FOOD BANK MITRA]',
-			ikon: 'donasi',
-			href: '/asisten/donasi'
+			id: 'a3',
+			title: 'Donation pickup 21.30',
+			detail: '[PARTNER FOOD BANK]',
+			icon: 'donation',
+			href: '/assistant/donation'
 		}
 	],
-	perintah: [
-		{ label: 'Tambah produk dari foto', href: '/asisten/produk' },
-		{ label: 'Stok susu oat berapa?', href: '/asisten/stok' },
-		{ label: 'Foto sisa hari ini', href: '/asisten/sisa' },
-		{ label: 'Ide menu dari stok', href: '/asisten/spesial' },
-		{ label: 'Laporan minggu ini', href: '/asisten/laporan' },
-		{ label: 'Ubah jam buka', href: '/asisten/toko' }
+	commands: [
+		{ label: 'Add a product from a photo', href: '/assistant/product' },
+		{ label: 'How much oat milk is left?', href: '/assistant/stock' },
+		{ label: "Photograph today's leftovers", href: '/assistant/waste' },
+		{ label: 'Menu ideas from stock', href: '/assistant/special' },
+		{ label: "This week's report", href: '/assistant/report' },
+		{ label: 'Change opening hours', href: '/assistant/shop' }
 	]
 };
 
-/* B3 · Saran pesanan → PO. Ini jalur demo: kartu → tanya → ubah → setujui. */
-const THREAD_PESAN: Thread = {
-	topik: 'Saran pesanan',
-	toko: TOKO,
-	sumber: null,
-	pesan: [
+/* B3 · Reorder suggestion → PO. The demo path: card → question → edit → approve. */
+const REORDER_THREAD: Thread = {
+	topic: 'Reorder suggestion',
+	shop: SHOP,
+	source: null,
+	messages: [
 		{
 			id: 'm1',
-			penulis: 'agent',
-			tipe: 'kartu_saran',
-			waktu: 'Senin 07.00',
-			kartu: {
-				label: 'Saran pesanan',
-				keyakinan: 'Keyakinan tinggi',
-				judul: 'Kopi Arabika 1 kg · pesan 12 kg',
-				alasan:
-					'Stok 4 kg, terjual 1,6 kg/hari, habis Kamis. CV Sumber Kopi kirim 2 hari, tiba Rabu.',
-				jumlah: 12,
-				satuan: 'kg',
-				token: 'tok_saran_0771'
+			author: 'agent',
+			type: 'suggestion_card',
+			time: 'Monday 07.00',
+			card: {
+				label: 'Reorder suggestion',
+				confidence: 'High confidence',
+				title: 'Arabica Beans 1 kg · order 12 kg',
+				reason:
+					'4 kg on hand, selling 1.6 kg a day, out by Thursday. Sumber Kopi delivers in 2 days, arriving Wednesday.',
+				quantity: 12,
+				unit: 'kg',
+				token: 'tok_suggestion_0771'
 			}
 		},
 		{
 			id: 'm2',
-			penulis: 'staff',
-			tipe: 'teks',
-			waktu: '07.03',
-			teks: 'kenapa 12? minggu depan libur 2 hari'
+			author: 'staff',
+			type: 'text',
+			time: '07.03',
+			text: "why 12? we're closed two days next week"
 		},
 		{
 			id: 'm3',
-			penulis: 'agent',
-			tipe: 'teks',
-			waktu: '07.04',
-			teks: '12 kg untuk 7 hari + cadangan. Kalau tutup 2 hari, 9 kg cukup. Libur saya catat untuk prediksi berikutnya.',
-			aksi: [
-				{ label: 'Pesan 9 kg', token: 'tok_saran_0771_9', utama: true },
-				{ label: 'Tetap 12 kg', token: 'tok_saran_0771', utama: false }
+			author: 'agent',
+			type: 'text',
+			time: '07.04',
+			text: "12 kg covers 7 days plus a buffer. Closed two days, 9 kg is enough. I've noted the closure for next time.",
+			actions: [
+				{ label: 'Order 9 kg', token: 'tok_suggestion_0771_9', primary: true },
+				{ label: 'Keep 12 kg', token: null, primary: false }
 			]
 		}
 	]
 };
 
-/* B5 · Foto sisa → AI vision → tujuan. */
-const THREAD_SISA: Thread = {
-	topik: 'Foto sisa',
-	toko: TOKO,
-	sumber: 'Gemini vision',
-	pesan: [
+/* B5 · Waste photo → AI vision → destination. */
+const WASTE_THREAD: Thread = {
+	topic: 'Waste photo',
+	shop: SHOP,
+	source: 'Gemini vision',
+	messages: [
 		{
-			id: 's1',
-			penulis: 'staff',
-			tipe: 'foto',
-			waktu: '21.10',
-			fotoLabel: '[FOTO NAMPAN SISA]',
-			kotak: [
-				{ x: 5, y: 15, w: 41, h: 47, yakin: true },
-				{ x: 53, y: 20, w: 39, h: 57, yakin: true },
-				{ x: 12, y: 67, w: 32, h: 23, yakin: false }
+			id: 'w1',
+			author: 'staff',
+			type: 'photo',
+			time: '21.10',
+			photoLabel: '[PHOTO OF LEFTOVER TRAY]',
+			boxes: [
+				{ x: 5, y: 15, w: 41, h: 47, confident: true },
+				{ x: 53, y: 20, w: 39, h: 57, confident: true },
+				{ x: 12, y: 67, w: 32, h: 23, confident: false }
 			]
 		},
 		{
-			id: 's2',
-			penulis: 'agent',
-			tipe: 'kartu_sisa',
-			waktu: '21.11',
-			kartu: {
-				label: 'Sisa hari ini · 3 barang',
-				nilai: '±Rp167 rb',
-				barang: [
+			id: 'w2',
+			author: 'agent',
+			type: 'waste_card',
+			time: '21.11',
+			card: {
+				label: "Today's leftovers · 3 items",
+				value: '~Rp167k',
+				items: [
 					{
-						id: 'b1',
-						nama: 'Croissant Butter',
-						jumlah: 3,
-						satuan: 'pcs',
-						kondisi: 'aman',
-						kondisiLabel: 'masih aman · 96%',
-						tujuan: [
-							{ id: 'donasi', label: 'Donasi', dipilih: true },
-							{ id: 'spesial', label: 'Menu spesial', dipilih: false },
-							{ id: 'staf', label: 'Makan staf', dipilih: false }
+						id: 'i1',
+						name: 'Butter Croissant',
+						quantity: 3,
+						unit: 'pcs',
+						severity: 'ok',
+						severityLabel: 'still good · 96%',
+						destinations: [
+							{ id: 'donation', label: 'Donate', selected: true },
+							{ id: 'special', label: "Today's special", selected: false },
+							{ id: 'staff', label: 'Staff meal', selected: false }
 						]
 					},
 					{
-						id: 'b2',
-						nama: 'Susu Oat 1 L',
-						jumlah: 2,
-						satuan: 'L',
-						kondisi: 'lewat',
-						kondisiLabel: 'lewat tanggal · 92%',
-						tujuan: [
-							{ id: 'kompos', label: 'Kompos / maggot', dipilih: true },
-							{ id: 'buang', label: 'Buang', dipilih: false }
+						id: 'i2',
+						name: 'Oat Milk 1 L',
+						quantity: 2,
+						unit: 'L',
+						severity: 'critical',
+						severityLabel: 'past date · 92%',
+						destinations: [
+							{ id: 'compost', label: 'Compost / larvae', selected: true },
+							{ id: 'discard', label: 'Discard', selected: false }
 						],
-						peringatan: 'Lewat tanggal: tidak boleh dijual atau didonasikan.'
+						warning: 'Past its date: it cannot be sold or donated.'
 					}
 				],
-				ragu: {
-					keyakinan: 58,
-					kandidat: [
-						{ id: 'k1', nama: 'Roti Tawar Gandum' },
-						{ id: 'k2', nama: 'Roti Sobek' }
+				uncertain: {
+					confidence: 58,
+					candidates: [
+						{ id: 'c1', name: 'Wholemeal Bread' },
+						{ id: 'c2', name: 'Milk Bun' }
 					]
 				},
-				catatan: 'Foto disimpan sebagai bukti · lokasi foto dihapus'
+				note: 'Photo kept as evidence · location data removed'
 			}
 		}
 	]
 };
 
-/* Thread yang belum didalami: asisten membuka percakapan, komposer siap. */
-function threadRingkas(topik: string, sapaan: string, sumber: string | null = null): Thread {
+/* Threads not yet built out: the assistant opens, the composer is ready. */
+function brief(topic: string, opening: string, source: string | null = null): Thread {
 	return {
-		topik,
-		toko: TOKO,
-		sumber,
-		pesan: [{ id: 'a1', penulis: 'agent', tipe: 'teks', waktu: 'Sekarang', teks: sapaan }]
+		topic,
+		shop: SHOP,
+		source,
+		messages: [{ id: 'a1', author: 'agent', type: 'text', time: 'Just now', text: opening }]
 	};
 }
 
 export const THREADS: Record<string, Thread> = {
-	pesan: THREAD_PESAN,
-	sisa: THREAD_SISA,
-	produk: threadRingkas(
-		'Tambah produk dari foto',
-		'Kirim foto produknya, saya buatkan nama, kategori dan deskripsi. Kamu yang menyetujui sebelum tersimpan.'
+	reorder: REORDER_THREAD,
+	waste: WASTE_THREAD,
+	product: brief(
+		'Add a product from a photo',
+		"Send me a photo and I'll draft the name, category and description. Nothing is saved until you approve it."
 	),
-	stok: threadRingkas(
-		'Cek & ubah stok',
-		'Susu Oat 1 L tinggal 5 L di gudang utama, 2 lot. Mau saya catat penyesuaian?'
+	stock: brief(
+		'Check and adjust stock',
+		'Oat Milk 1 L is down to 5 L in the main store, across 2 lots. Want me to record an adjustment?'
 	),
-	kedaluwarsa: threadRingkas(
-		'Hampir kedaluwarsa',
-		'14 croissant kedaluwarsa besok, 8 diperkirakan tidak laku. Mau pasang diskon bertahap dari 17.00?'
+	expiry: brief(
+		'Expiring soon',
+		'14 croissants expire tomorrow and 8 are unlikely to sell. Shall I set a stepped discount from 17.00?'
 	),
-	donasi: threadRingkas(
-		'Donasi',
-		'[FOOD BANK MITRA] bisa jemput 21.30. Sebelum lanjut, ada daftar periksa keamanan pangan yang harus kamu centang.'
+	donation: brief(
+		'Donation',
+		"[PARTNER FOOD BANK] can collect at 21.30. Before we go on, there's a food-safety checklist for you to tick."
 	),
-	spesial: threadRingkas(
-		'Menu spesial dari stok',
-		'Dari stok yang ada: croissant + susu oat jadi 6 porsi pudding. Harga Rp18.000, balik modal Rp108.000.'
+	special: brief(
+		"Today's special from stock",
+		"From what's on hand: croissants and oat milk make 6 portions of pudding. Price Rp18,000, recovering Rp108,000."
 	),
-	laporan: threadRingkas(
-		'Laporan & dampak',
-		'Minggu ini omzet Rp12,4 jt, untung Rp3,1 jt. Dari 9 foto sisa, 78% terselamatkan — naik dari 61% minggu lalu.'
+	report: brief(
+		'Reports and impact',
+		'This week: Rp12.4M revenue, Rp3.1M profit. Across 9 waste photos, 78% was diverted — up from 61% last week.'
 	),
-	toko: threadRingkas('Atur toko', 'Jam buka sekarang 07.00–21.00. Mau diubah untuk hari apa?')
+	shop: brief('Shop settings', "You're open 07.00–21.00. Which day would you like to change?")
 };
 
-export const PRODUK: DaftarProduk = {
+export const PRODUCTS: ProductList = {
 	total: 24,
-	kategori: ['Semua', 'Minuman', 'Roti', 'Bahan', 'Draf'],
-	produk: [
+	categories: ['All', 'Drinks', 'Bakery', 'Ingredients', 'Drafts'],
+	products: [
 		{
-			id: 'pr1',
-			nama: 'Kopi Susu Gula Aren 250 ml',
-			harga: 35000,
-			hargaLabel: 'Rp35.000',
-			subjudul: null,
-			kategori: 'Minuman',
-			stokLabel: '20 stok',
-			stokKondisi: 'aman',
-			status: 'Baru',
-			statusPenting: false,
-			fotoWarna: '#EAD9C2'
+			id: 'p1',
+			name: 'Palm Sugar Latte 250 ml',
+			price: 35000,
+			priceLabel: 'Rp35,000',
+			subtitle: null,
+			category: 'Drinks',
+			stockLabel: '20 in stock',
+			stockSeverity: 'ok',
+			status: 'New',
+			statusImportant: false,
+			photoColour: '#EAD9C2'
 		},
 		{
-			id: 'pr2',
-			nama: 'Croissant Butter (isi 4)',
-			harga: 60000,
-			hargaLabel: 'Rp60.000',
-			subjudul: null,
-			kategori: 'Roti',
-			stokLabel: '14 · exp besok',
-			stokKondisi: 'hampir',
-			status: 'Diskon 17.00',
-			statusPenting: true,
-			fotoWarna: '#E8DCC8'
+			id: 'p2',
+			name: 'Butter Croissant (box of 4)',
+			price: 60000,
+			priceLabel: 'Rp60,000',
+			subtitle: null,
+			category: 'Bakery',
+			stockLabel: '14 · exp. tomorrow',
+			stockSeverity: 'warn',
+			status: 'Discount 17.00',
+			statusImportant: true,
+			photoColour: '#E8DCC8'
 		},
 		{
-			id: 'pr3',
-			nama: 'Kopi Arabika 1 kg',
-			harga: 210000,
-			hargaLabel: 'Rp210.000',
-			subjudul: null,
-			kategori: 'Bahan',
-			stokLabel: '4 kg',
-			stokKondisi: 'lewat',
-			status: 'PO dikirim',
-			statusPenting: false,
-			fotoWarna: '#DCCFBD'
+			id: 'p3',
+			name: 'Arabica Beans 1 kg',
+			price: 210000,
+			priceLabel: 'Rp210,000',
+			subtitle: null,
+			category: 'Ingredients',
+			stockLabel: '4 kg',
+			stockSeverity: 'critical',
+			status: 'PO sent',
+			statusImportant: false,
+			photoColour: '#DCCFBD'
 		},
 		{
-			id: 'pr4',
-			nama: 'Susu Oat 1 L',
-			harga: null,
-			hargaLabel: null,
-			subjudul: 'Bahan · tidak dijual',
-			kategori: 'Bahan',
-			stokLabel: '5 L',
-			stokKondisi: 'hampir',
-			status: '2 lot',
-			statusPenting: false,
-			fotoWarna: '#E6E2D6'
+			id: 'p4',
+			name: 'Oat Milk 1 L',
+			price: null,
+			priceLabel: null,
+			subtitle: 'Ingredient · not for sale',
+			category: 'Ingredients',
+			stockLabel: '5 L',
+			stockSeverity: 'warn',
+			status: '2 lots',
+			statusImportant: false,
+			photoColour: '#E6E2D6'
 		},
 		{
-			id: 'pr5',
-			nama: 'Donat Gula Aren',
-			harga: 15000,
-			hargaLabel: 'Rp15.000',
-			subjudul: null,
-			kategori: 'Roti',
-			stokLabel: '12 stok',
-			stokKondisi: 'aman',
-			status: 'Aktif',
-			statusPenting: false,
-			fotoWarna: '#EFE0CB'
+			id: 'p5',
+			name: 'Palm Sugar Doughnut',
+			price: 15000,
+			priceLabel: 'Rp15,000',
+			subtitle: null,
+			category: 'Bakery',
+			stockLabel: '12 in stock',
+			stockSeverity: 'ok',
+			status: 'Active',
+			statusImportant: false,
+			photoColour: '#EFE0CB'
 		}
 	]
 };
 
-export const STOK: DaftarStok = {
-	lokasi: 'Gudang utama',
-	ringkasan: { nilai: 'Rp6,8 jt', hampirHabis: 3, hampirKedaluwarsa: 2 },
-	baris: [
+export const STOCK: StockList = {
+	location: 'Main store',
+	summary: { value: 'Rp6.8M', lowCount: 3, expiringCount: 2 },
+	rows: [
 		{
-			id: 'st1',
-			nama: 'Kopi Arabika 1 kg',
-			jumlahLabel: '4 kg',
-			persen: 18,
-			kondisi: 'lewat',
-			kiri: 'Habis Kamis · 2,5 hari',
-			kanan: 'PO-0771 tiba Rabu',
-			kananPenting: true
+			id: 's1',
+			name: 'Arabica Beans 1 kg',
+			quantityLabel: '4 kg',
+			percent: 18,
+			severity: 'critical',
+			left: 'Out Thursday · 2.5 days',
+			right: 'PO-0771 arrives Wednesday',
+			rightImportant: true
 		},
 		{
-			id: 'st2',
-			nama: 'Susu Oat 1 L',
-			jumlahLabel: '5 L',
-			persen: 30,
-			kondisi: 'hampir',
-			kiri: '3 L kedaluwarsa Kamis',
-			kanan: '2 lot',
-			kananPenting: false
+			id: 's2',
+			name: 'Oat Milk 1 L',
+			quantityLabel: '5 L',
+			percent: 30,
+			severity: 'warn',
+			left: '3 L expire Thursday',
+			right: '2 lots',
+			rightImportant: false
 		},
 		{
-			id: 'st3',
-			nama: 'Croissant Butter',
-			jumlahLabel: '14 box',
-			persen: 70,
-			kondisi: 'hampir',
-			kiri: 'Kedaluwarsa besok · diskon 17.00',
-			kanan: 'lot L-889',
-			kananPenting: false
+			id: 's3',
+			name: 'Butter Croissant',
+			quantityLabel: '14 boxes',
+			percent: 70,
+			severity: 'warn',
+			left: 'Expires tomorrow · discount 17.00',
+			right: 'lot L-889',
+			rightImportant: false
 		},
 		{
-			id: 'st4',
-			nama: 'Gula Aren 1 kg',
-			jumlahLabel: '9 kg',
-			persen: 62,
-			kondisi: 'aman',
-			kiri: 'Aman · 11 hari',
-			kanan: 'otomatis disetujui',
-			kananPenting: false
+			id: 's4',
+			name: 'Palm Sugar 1 kg',
+			quantityLabel: '9 kg',
+			percent: 62,
+			severity: 'ok',
+			left: 'Fine · 11 days',
+			right: 'auto-approved',
+			rightImportant: false
 		}
 	]
 };
 
-export const PENGATURAN_AI: PengaturanAI = {
-	mode: [
-		{ id: 'hemat', label: 'Hemat', catatan: 'jawab singkat, model kecil' },
-		{ id: 'seimbang', label: 'Seimbang', catatan: 'bawaan' },
-		{ id: 'teliti', label: 'Teliti', catatan: 'alasan lebih panjang' }
+export const AI_SETTINGS: AiSettings = {
+	modes: [
+		{ id: 'frugal', label: 'Frugal', note: 'short answers, small model' },
+		{ id: 'balanced', label: 'Balanced', note: 'default' },
+		{ id: 'thorough', label: 'Thorough', note: 'longer reasoning' }
 	],
-	modeDipilih: 'seimbang',
-	model: [
-		{ tugas: 'Chat & penjelasan', nama: 'Gemini Flash', sistem: false },
-		{ tugas: 'Baca foto produk & sisa', nama: 'Gemini Pro', sistem: false },
-		{ tugas: 'Ide menu & listing', nama: 'Gemini Flash', sistem: false },
+	selectedMode: 'balanced',
+	models: [
+		{ task: 'Chat and explanations', name: 'Gemini Flash', system: false },
+		{ task: 'Reading product and waste photos', name: 'Gemini Pro', system: false },
+		{ task: 'Menu ideas and listings', name: 'Gemini Flash', system: false },
 		{
-			tugas: 'Prediksi stok',
-			catatan: 'angka dihitung sistem, bukan chat',
-			nama: 'TimesFM',
-			sistem: true
+			task: 'Stock forecasting',
+			note: 'computed by the system, not by chat',
+			name: 'TimesFM',
+			system: true
 		}
 	],
-	otonomi: [
+	autonomy: [
 		{
-			id: 'po-kecil',
-			label: 'Pesanan kecil otomatis',
-			catatan: '≤Rp500 rb, sudah 3× disetujui tanpa diubah',
-			aktif: true
+			id: 'small-po',
+			label: 'Auto-approve small orders',
+			note: '≤Rp500k, after 3 approvals with no edits',
+			enabled: true
 		},
-		{ id: 'diskon', label: 'Diskon kedaluwarsa otomatis', aktif: false }
+		{ id: 'markdown', label: 'Auto-discount near expiry', enabled: false }
 	],
-	bahasa: {
-		pilihan: ['Indonesia · santai', 'Indonesia · formal', 'English'],
-		dipilih: 'Indonesia · santai'
+	language: {
+		options: ['English', 'Indonesia · santai', 'Indonesia · formal'],
+		selected: 'English'
 	},
-	biaya: {
-		batasLabel: 'Rp150 rb/bln',
-		terpakaiPersen: 25,
-		catatan: 'Terpakai 25% bulan ini. Jika habis, asisten pakai mode Hemat.'
+	budget: {
+		capLabel: 'Rp150k/mo',
+		usedPercent: 25,
+		note: '25% used this month. If it runs out, the assistant drops to Frugal.'
 	},
-	privasi:
-		'Data tokomu tidak dipakai untuk melatih model. Foto sisa disimpan 90 hari sebagai bukti.'
+	privacy:
+		"Your shop's data is not used to train models. Waste photos are kept for 90 days as evidence."
 };

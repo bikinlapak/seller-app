@@ -2,14 +2,14 @@
 	import type { Snippet } from 'svelte';
 
 	/*
-	 * Gelembung chat. Sudut 4px menghadap pengirim (lihat .bubble-* di
-	 * layout.css). Agen: kartu putih bergaris, rata kiri. Penjual: pine,
-	 * teks putih, rata kanan.
+	 * A chat bubble. The 4px corner faces the sender (see .bubble-* in
+	 * layout.css). Agent: a white bordered card, left-aligned. Merchant: pine,
+	 * white text, right-aligned.
 	 */
-	let { penulis, children }: { penulis: 'agent' | 'staff'; children: Snippet } = $props();
+	let { author, children }: { author: 'agent' | 'staff'; children: Snippet } = $props();
 </script>
 
-{#if penulis === 'agent'}
+{#if author === 'agent'}
 	<div
 		class="bubble-agent max-w-[320px] self-start border border-line bg-surface px-3.5 py-2.5 text-sm leading-relaxed"
 	>

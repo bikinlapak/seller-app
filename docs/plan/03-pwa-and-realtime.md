@@ -1,19 +1,19 @@
 # 03 — PWA, realtime, camera
 
 The four capabilities that make this a usable app behind a counter rather than a
-website: install, offline, push, camera. Plus SSE, which is what makes Asisten
-Stok feel like a conversation.
+website: install, offline, push, camera. Plus SSE, which is what makes the
+assistant feel like a conversation.
 
 ## Install (PWA)
 
 - `static/manifest.webmanifest` — `name: "bikinlapak Seller"`,
   `short_name: "Seller"`, `display: standalone`, `theme_color` from
   `--color-pine-600`, `background_color` from `--color-cream`, maskable icons at
-  192/512, `start_url: /beranda`, `lang: id`, `orientation: portrait`.
-- Shortcuts in the manifest for **Foto Sisa** and **Asisten Stok** — long-press
+  192/512, `start_url: /assistant`, `lang: id`, `orientation: portrait`.
+- Shortcuts in the manifest for **Waste photo** and **Assistant** — long-press
   the home-screen icon and photograph waste in one tap. The cheapest feature in
   this document, relative to how much it is used.
-- An install prompt on Beranda after the third session, dismissible for good.
+- An install prompt on the assistant home after the third session, dismissible for good.
   Not on first load, where it reads as a popup.
 
 `adapter-node` stays: there is server-side load and there are sessions, so a
@@ -42,7 +42,7 @@ Offline fallback page: `src/routes/+error.svelte` plus a precached
 
 ## Push notifications
 
-- Web Push with VAPID. Subscribe from `/pengaturan` **after** the merchant opts
+- Web Push with VAPID. Subscribe from `/settings` **after** the merchant opts
   in on a screen that explains what will be sent — never a cold
   `Notification.requestPermission()` on load, which gets denied permanently and
   cannot be re-asked.
@@ -82,14 +82,14 @@ Then `POST /v1/waste/analyze`. It takes up to six seconds, so the confirm screen
 shows a real progress state — the photo with a scanning shimmer, not a spinner
 over a blank page.
 
-## SSE (Asisten Stok)
+## SSE (Shop Assistant)
 
 ```plain text
 GET /v1/assistant/stream
   events: message | suggestion | result | resync | ping
 ```
 
-- Connect in `onMount` of `asisten/+page.svelte` and on Beranda (for the badge),
+- Connect in `onMount` of `assistant/+page.svelte` and on the home screen (for the badge),
   one connection shared through a store in `src/lib/stores/assistant.ts` so two
   mounted components do not open two streams.
 - `EventSource` reconnects on its own and replays `Last-Event-ID`; the server
@@ -102,7 +102,7 @@ GET /v1/assistant/stream
 - Optimistic send: the merchant's own message appears immediately with a pending
   mark, and is reconciled when it arrives back over the stream.
 - The badge count lives in the same store, so a card arriving while the merchant
-  is on Produk lights the Asisten tab.
+  is on Products lights the Assistant tab.
 
 ## What is deliberately not used
 

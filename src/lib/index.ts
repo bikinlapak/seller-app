@@ -1,1 +1,1 @@
-// Berkas yang diimpor lewat `#lib` ditaruh di folder ini.
+// Files imported through `#lib` live in this folder.

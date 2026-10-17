@@ -1,6 +1,5 @@
 /*
- * Berkas ini dulu menampung seluruh klien seller-svc. Sekarang isinya pindah ke
- * ./api/ (satu modul per kelompok endpoint); ini tinggal re-export supaya impor
- * lama tidak putus.
+ * This file used to hold the whole seller-svc client. It now lives in ./api/
+ * (one module per endpoint group); this re-export keeps older imports working.
  */
-export { fetchHealth, pakaiTiruan, sellerSvcUrl, type Health } from './api/http.js';
+export { fetchHealth, sellerSvcUrl, useMocks, type Health } from './api/http.js';

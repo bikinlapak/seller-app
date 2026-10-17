@@ -2,80 +2,85 @@
 @plugin '@tailwindcss/forms';
 
 /*
- * Token desain bikinlapak — dasarnya diambil dari repo comingsoon
- * (src/routes/layout.css) supaya dasbor penjual dan halaman publik terasa satu
- * merek. Kalau token di sana berubah, salin perubahannya ke sini.
+ * bikinlapak design tokens. The base comes from the comingsoon repo
+ * (src/routes/layout.css) so the seller app and the public site read as one
+ * brand. If a token changes there, copy the change here.
  *
- * Token bertanda "kanvas" diturunkan dari kanvas desain "bikinlapak Seller App
- * Funnel" (21 artboard, 390x844). Lihat docs/plan/04-design-system.md.
+ * Tokens marked "canvas" are read off the design canvas "bikinlapak Seller App
+ * Funnel" (21 artboards, 390x844). See docs/plan/04-design-system.md.
+ *
+ * Naming: `pine`, `kunyit`, `cream`, `ink`, `line`, `sukses` and `error` are
+ * the shared brand palette and keep their comingsoon names, Indonesian
+ * included — renaming them would break that sync. Tokens invented for this
+ * app are named in English.
  */
 @theme {
-	/* Young Serif untuk display: dipakai di seluruh artboard kanvas. */
+	/* Young Serif for display: used across every canvas artboard. */
 	--font-display: 'Young Serif', ui-serif, Georgia, serif;
 	--font-sans: 'Figtree', ui-sans-serif, system-ui, sans-serif;
 	--font-mono: ui-monospace, Menlo, Monaco, 'Cascadia Code', monospace;
 
-	/* --- Pine (warna utama) --- */
+	/* --- Pine (primary) --- */
 	--color-pine-100: #e3eeea;
-	--color-pine-200: #d9e6e2; /* kanvas: teks sekunder di atas pine */
-	--color-pine-300: #a9cbbf; /* kanvas: garis kartu hasil */
-	--color-pine-400: #7fa79e; /* kanvas: garis tombol di atas pine */
+	--color-pine-200: #d9e6e2; /* canvas: secondary text on pine */
+	--color-pine-300: #a9cbbf; /* canvas: result-card border */
+	--color-pine-400: #7fa79e; /* canvas: outlined button border on pine */
 	--color-pine-500: #2e6a5f;
 	--color-pine-600: #1f5a50;
 	--color-pine-800: #163f39;
 
-	/* --- Kunyit (aksen) --- */
+	/* --- Kunyit / turmeric (accent) --- */
 	--color-kunyit-100: #fbefd6;
 	--color-kunyit-400: #e8a63a;
 	--color-kunyit-700: #8a5a10;
-	--color-kunyit-800: #5c3d0a; /* kanvas: teks di atas kunyit-100 */
-	--color-kunyit-900: #3d2805; /* kanvas: teks di atas kunyit-400 */
+	--color-kunyit-800: #5c3d0a; /* canvas: text on kunyit-100 */
+	--color-kunyit-900: #3d2805; /* canvas: text on kunyit-400 */
 
-	/* --- Dasar & permukaan --- */
+	/* --- Ground and surfaces --- */
 	--color-cream: #faf6ef;
 	--color-cream-soft: #fffbf4;
-	--color-surface: #ffffff; /* kanvas: kartu, header, komposer */
-	--color-surface-warn: #fff8f0; /* kanvas: blok "belum yakin" */
+	--color-surface: #ffffff; /* canvas: cards, header, composer */
+	--color-surface-warn: #fff8f0; /* canvas: the "not sure" block */
 
-	/* --- Teks --- */
+	/* --- Text --- */
 	--color-ink: #2a2521;
-	--color-ink-label: #4f4740; /* kanvas: label bagian */
-	--color-ink-muted: #685e55; /* kanvas: teks sekunder */
+	--color-ink-label: #4f4740; /* canvas: section labels */
+	--color-ink-muted: #685e55; /* canvas: secondary text */
 	--color-ink-faint: #8a7f73;
 
-	/* --- Garis --- */
-	--color-line: #e6ddcf; /* kanvas: garis kartu & header */
-	--color-line-soft: #f2eadd; /* kanvas: pemisah di dalam kartu */
-	--color-line-strong: #d6ccbc; /* kanvas: garis tombol sekunder */
-	--color-chip: #eae2d6; /* kanvas: latar chip netral (label AI) */
+	/* --- Lines --- */
+	--color-line: #e6ddcf; /* canvas: card and header borders */
+	--color-line-soft: #f2eadd; /* canvas: dividers inside a card */
+	--color-line-strong: #d6ccbc; /* canvas: secondary button borders */
+	--color-chip: #eae2d6; /* canvas: neutral chip background (the AI label) */
 
-	/* --- Status: aman --- */
+	/* --- Status: fine --- */
 	--color-sukses: #22663f;
 	--color-sukses-bg: #e2f1e7;
 
-	/* --- Status: bahaya / lewat tanggal (kanvas: lebih hangat dari merah) --- */
-	--color-bahaya: #8e2f1c;
-	--color-bahaya-kuat: #7a2818;
-	--color-bahaya-bg: #f3dccb;
+	/* --- Status: danger / past date (canvas: warmer than red) --- */
+	--color-danger: #8e2f1c;
+	--color-danger-strong: #7a2818;
+	--color-danger-bg: #f3dccb;
 
-	/* --- Dipakai comingsoon; jangan dihapus --- */
+	/* --- Used by comingsoon; do not remove --- */
 	--color-error: #b3261e;
 	--color-error-bg: #fbe4e2;
 
-	/* --- Vision (kanvas: kotak deteksi di atas foto) --- */
-	--color-foto-dasar: #3a3128;
-	--color-kotak-yakin: #8fd3b6;
+	/* --- Vision (canvas: detection boxes over a photo) --- */
+	--color-photo-base: #3a3128;
+	--color-box-confident: #8fd3b6;
 
-	/* --- Radius --- */
-	--radius-card: 1rem; /* 16px — panel & bagian */
-	--radius-row: 14px; /* kanvas: baris daftar, tombol utama */
-	--radius-field: 12px; /* kanvas: input, tombol ikon */
-	--radius-action: 10px; /* kanvas: tombol di dalam kartu */
-	--radius-tile: 10px; /* kanvas: kotak ikon 36px */
+	/* --- Radii --- */
+	--radius-card: 1rem; /* 16px — panels and sections */
+	--radius-row: 14px; /* canvas: list rows, primary buttons */
+	--radius-field: 12px; /* canvas: inputs, icon buttons */
+	--radius-action: 10px; /* canvas: buttons inside a card */
+	--radius-tile: 10px; /* canvas: 36px icon tiles */
 
 	--shadow-e1: 0 0 0 1px #eae2d6, 0 1px 3px rgb(42 37 33 / 0.06);
 
-	/* Tinggi bar bawah, dipakai untuk padding aman halaman. */
+	/* Bottom bar height, used for safe page padding. */
 	--spacing-navbar: 4.75rem;
 }
 
@@ -88,7 +93,7 @@
 		-webkit-font-smoothing: antialiased;
 	}
 
-	/* Target sentuh minimal 44px di seluruh aplikasi — lihat kanvas. */
+	/* 44px minimum touch targets throughout — see the canvas. */
 	button,
 	[role='tab'],
 	[role='radio'] {
@@ -98,8 +103,9 @@
 
 @layer components {
 	/*
-	 * Bentuk gelembung chat dari kanvas: sudut 4px menghadap pengirim.
-	 * Dipakai juga oleh kartu asisten (<article>), yang bentuknya sama.
+	 * Chat bubble shape from the canvas: the 4px corner faces the sender.
+	 * Assistant cards (<article>) use it too — a card is something the
+	 * assistant said.
 	 */
 	.bubble-agent {
 		border-radius: 4px 16px 16px 16px;
@@ -109,7 +115,7 @@
 		border-radius: 16px 4px 16px 16px;
 	}
 
-	/* Label bagian: 12px, 700, huruf besar, spasi lega. */
+	/* Section label: 12px, 700, uppercase, loose tracking. */
 	.label-section {
 		font-size: 12px;
 		font-weight: 700;

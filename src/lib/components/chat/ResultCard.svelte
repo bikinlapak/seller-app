@@ -1,13 +1,13 @@
 <script lang="ts">
 	import Icon from '#lib/components/Icon.svelte';
-	import type { KartuHasil } from '#lib/types/api.js';
+	import type { ResultCard } from '#lib/types/api.js';
 
 	/*
-	 * Kartu hasil: muncul setelah executor benar-benar menulis ke worksh.io.
-	 * Garisnya pine-300 dan kepalanya pine-100 supaya jelas berbeda dari saran —
-	 * yang satu usulan, yang satu sudah terjadi.
+	 * The result card: shown once the executor has actually written to
+	 * worksh.io. Its border is pine-300 and its header pine-100 so it reads
+	 * clearly apart from a suggestion — one is a proposal, the other happened.
 	 */
-	let { kartu }: { kartu: KartuHasil } = $props();
+	let { card }: { card: ResultCard } = $props();
 </script>
 
 <article class="bubble-agent overflow-hidden border border-pine-300 bg-surface">
@@ -15,24 +15,24 @@
 		<span
 			class="flex size-8 flex-none items-center justify-center rounded-full bg-pine-600 text-white"
 		>
-			<Icon nama="centang" ukuran={18} tebal={2.5} />
+			<Icon name="check" size={18} weight={2.5} />
 		</span>
 		<span class="flex flex-col gap-px">
-			<span class="text-[15px] font-bold text-pine-800">{kartu.judul}</span>
-			<span class="text-xs text-pine-800">{kartu.detail}</span>
+			<span class="text-[15px] font-bold text-pine-800">{card.title}</span>
+			<span class="text-xs text-pine-800">{card.detail}</span>
 		</span>
 	</div>
 	<div class="flex gap-2 px-3.5 pt-2.5 pb-3">
 		<a
-			href={kartu.waUrl}
+			href={card.waUrl}
 			rel="noreferrer"
 			class="flex min-h-[42px] flex-1 items-center justify-center rounded-action bg-pine-600 text-sm font-bold text-white"
-			>Kirim via WhatsApp</a
+			>Send via WhatsApp</a
 		>
 		<a
-			href={kartu.poHref}
+			href={card.poHref}
 			class="flex min-h-[42px] items-center rounded-action border border-line-strong px-3 text-sm font-semibold text-ink"
-			>Lihat PO</a
+			>View PO</a
 		>
 	</div>
 </article>

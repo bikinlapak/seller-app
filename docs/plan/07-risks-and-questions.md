@@ -19,7 +19,7 @@
 | SSE through an unknown proxy                                                                         | Server `ping` every 25 s; 60 s of silence reconnects; `resync` + `invalidate` rather than patching state from a guess                                                   |
 | Offline writes replayed into duplicate purchase orders                                               | Writes are **never** auto-replayed — a queued action becomes a visible "Belum terkirim" the merchant taps. Only content-addressed photo uploads retry                   |
 | Eight card types to design and build                                                                 | `MessageCard` as a single switch with a plain-text fallback for unknown types; build `ReorderCard` and `ExpiryCard` in Phase 5 against fixtures so Phase 6 is wiring    |
-| Bottom nav at five items and growing                                                                 | `/lainnya` absorbs Stok, Toko, Laporan and Pengaturan; the camera FAB stays in thumb reach, which is the action the product exists for                                  |
+| Bottom nav at five items and growing                                                                 | `/more` absorbs Stock, Shop, Reports and Settings; the camera FAB stays in thumb reach, which is the action the product exists for                                      |
 
 ## Open questions
 
@@ -46,9 +46,13 @@ Carried from the Notion plan, with what each one blocks here:
       story but costs a tap on stage. Default: suppressed on the demo tenant.
 - [ ] **Dark mode** — out of scope for v1 ([04-design-system.md](04-design-system.md)).
       Confirm nobody is expecting it in the submission.
-- [ ] **English strings** — the file exists from Phase 0, but is a language
-      toggle expected for the hackathon judges, or is a Bahasa-only app with an
-      English README enough?
+- [x] **Which language ships?** Settled 2026-10-16: English, throughout —
+      copy, comments, identifiers and the API contract. Indonesian stays a
+      an option in AI settings but is no longer the default.
+- [ ] **Does a real Indonesian translation follow?** The merchants are
+      Indonesian, so this matters commercially. Most user-facing copy comes
+      from the backend (`seed.rs`), so it needs a locale on the request rather
+      than a frontend strings table — more work than the Phase 0 item implies.
 - [ ] **Which Android device is the demo phone?** Phase 7 and 9 testing need the
       actual device, and the camera path is where models differ most.
 - [ ] **Does the merchant ever need two locations in v1?** The multi-location

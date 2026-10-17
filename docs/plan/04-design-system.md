@@ -7,10 +7,10 @@
 
 ## Typeface
 
-| Role    | Face            | Weights               | Where                                                                                              |
-| ------- | --------------- | --------------------- | -------------------------------------------------------------------------------------------------- |
-| Display | **Young Serif** | 400 only              | Screen titles (`Produk`, `Stok`), the greeting (`Pagi, Rima.`), the `bl` monogram, the A1 headline |
-| Body    | **Figtree**     | 400 · 500 · 600 · 700 | Everything else                                                                                    |
+| Role    | Face            | Weights               | Where                                                                                                    |
+| ------- | --------------- | --------------------- | -------------------------------------------------------------------------------------------------------- |
+| Display | **Young Serif** | 400 only              | Screen titles (`Products`, `Stock`), the greeting (`Morning, Rima.`), the `bl` monogram, the A1 headline |
+| Body    | **Figtree**     | 400 · 500 · 600 · 700 | Everything else                                                                                          |
 
 Young Serif replaces Plus Jakarta Sans for display in this app. It has one
 weight — don't ask for 600, you'll get a synthesised face.
@@ -38,7 +38,7 @@ thing: the _Tambah produk_ button.
 | ------------ | --------- | ------------------------------------------- |
 | `kunyit-100` | `#FBEFD6` | Near-expiry tint                            |
 | `kunyit-400` | `#E8A63A` | Accent fill, cost bar, unsure detection box |
-| `kunyit-700` | `#8A5A10` | Near-expiry text, "Belum yakin" heading     |
+| `kunyit-700` | `#8A5A10` | Near-expiry text, "Not sure" heading        |
 | `kunyit-800` | `#5C3D0A` | Text on `kunyit-100`                        |
 | `kunyit-900` | `#3D2805` | Text on `kunyit-400`                        |
 
@@ -48,7 +48,7 @@ thing: the _Tambah produk_ button.
 | -------------- | --------- | ------------------------------------------ |
 | `cream`        | `#FAF6EF` | App ground, input fills                    |
 | `surface`      | `#FFFFFF` | Cards, header, composer, nav               |
-| `surface-warn` | `#FFF8F0` | The "belum yakin" block                    |
+| `surface-warn` | `#FFF8F0` | The "not sure" block                       |
 | `line`         | `#E6DDCF` | Card and header borders                    |
 | `line-soft`    | `#F2EADD` | Dividers inside a card; empty bar track    |
 | `line-strong`  | `#D6CCBC` | Secondary button borders, unselected chips |
@@ -60,11 +60,11 @@ thing: the _Tambah produk_ button.
 **Status** — note the danger family is _warm brown-red_, not the
 `comingsoon` `error` red. Both exist; use the warm one in this app.
 
-| Meaning       | Text                                     | Fill                |
-| ------------- | ---------------------------------------- | ------------------- |
-| Aman          | `sukses #22663F`                         | `sukses-bg #E2F1E7` |
-| Hampir        | `kunyit-700`                             | `kunyit-100`        |
-| Lewat tanggal | `bahaya #8E2F1C` / `bahaya-kuat #7A2818` | `bahaya-bg #F3DCCB` |
+| Meaning       | Text                                       | Fill                |
+| ------------- | ------------------------------------------ | ------------------- |
+| Aman          | `sukses #22663F`                           | `sukses-bg #E2F1E7` |
+| Hampir        | `kunyit-700`                               | `kunyit-100`        |
+| Lewat tanggal | `bahaya #8E2F1C` / `danger-strong #7A2818` | `danger-bg #F3DCCB` |
 
 **Vision** — `foto-dasar #3A3128` (photo ground),
 `kotak-yakin #8FD3B6` (confident box); unsure boxes are dashed `kunyit-400`.
@@ -97,11 +97,11 @@ nothing you tap often below 44px.
 **Shell** — `AppShell` (430px max, centred; desktop is the same app, not a
 second layout), `BottomNav`, `Composer`, `ChatHeader`, `Icon`.
 
-**Chat** (`chat/`) — `Thread`, `Gelembung`, `MetaAgen`, `TandaSistem`,
-`FotoPesan`, `KartuSaran`, `KartuHasil`, `KartuSisa`.
+**Chat** (`chat/`) — `Thread`, `Bubble`, `AgentMeta`, `SystemNote`,
+`PhotoMessage`, `SuggestionCard`, `ResultCard`, `WasteCard`.
 
-**Data** — `ProdukRow`, `StokRow`, `Chip`, `AiLabel`, `QtyStepper`,
-`PerhatianList`, `PerintahCepat`.
+**Data** — `ProductRow`, `StockRow`, `Chip`, `AiLabel`, `QtyStepper`,
+`AttentionList`, `QuickCommands`.
 
 `Thread` is the one that pays for itself: a single switch over message type,
 with an unknown type falling back to plain text rather than throwing. The
@@ -119,20 +119,25 @@ buttons carry `aria-label`; decorative icons are `aria-hidden`.
 
 ## Copy
 
-- **Bahasa Indonesia** throughout, including code comments (as in
-  `../comingsoon`). An English strings file is Phase 0 work, not a shipped
-  toggle.
-- **Tone:** second person, direct, no jargon. _"Kopi Arabika habis Kamis"_, not
-  _"Stock cover: 2.1 days"_. Urgency is phrased as a consequence.
+- **English** throughout: user-facing copy, code comments, identifiers and the
+  API contract. This diverges from `../comingsoon`, which is Indonesian, by
+  decision on 2026-10-16 — the product ships in English. Indonesian remains a
+  choice in AI settings, and the backend serves the copy, so translating it
+  later means translating `seed.rs`, not the components.
+- **Tone:** second person, direct, no jargon. _"Arabica beans run out
+  Thursday"_, not _"Stock cover: 2.1 days"_. Urgency is phrased as a
+  consequence.
 - **Numbers come from the backend, already formatted.** The frontend computes no
   Rupiah and no day counts. If a figure is on screen, a response contained it —
   which is also what makes the assistant's claims auditable.
-- **Placeholders are bracketed and loud**: `[FOTO NAMPAN SISA]`,
-  `[FOOD BANK MITRA]`. Never invented stand-in data.
+- **Placeholders are bracketed and loud**: `[PHOTO OF LEFTOVER TRAY]`,
+  `[PARTNER FOOD BANK]`. Never invented stand-in data.
 - **`AiLabel` on everything generated** — the chip beside the agent's name, and
   on the attention card. Non-negotiable.
-- Money `Rp35.000`; abbreviated `Rp6,8 jt`, `±Rp167 rb`. Times `21.30` with a
-  period. Dates relative inside a week (_"habis Kamis"_, _"exp besok"_).
+- Money `Rp35,000`; abbreviated `Rp6.8M`, `~Rp167k`. Times `21.30` with a
+  period (the shop's own convention). Dates relative inside a week
+  (_"out Thursday"_, _"exp. tomorrow"_). The currency stays rupiah — the
+  merchants are Indonesian even though the interface is English.
 
 ## Accessibility
 
@@ -141,7 +146,7 @@ buttons carry `aria-label`; decorative icons are `aria-hidden`.
   `fieldset`/`radiogroup`, not styled divs.
 - The thread is `aria-live="polite"` so an arriving card is announced once.
 - **Status is never colour alone** — stock bars carry a figure and a text
-  caption, condition chips carry words (_"lewat tanggal · 92%"_).
+  caption, condition chips carry words (_"past date · 92%"_).
 - Section labels are uppercased in CSS, so assistive tech reads normal case.
 - `env(safe-area-inset-bottom)` respected by the nav and the composer.
 - Dark mode is **out of scope for v1**: this is used in daylight behind a

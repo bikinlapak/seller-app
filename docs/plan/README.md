@@ -2,7 +2,7 @@
 
 The SvelteKit PWA for **bikinlapak Seller**: one mobile-first app where a
 merchant registers, sets up the shop, manages products and stock, sees reports,
-chats with **Asisten Stok** (PasStok), photographs waste and sends it to the
+chats with the **Shop Assistant** (PasStok), photographs waste and sends it to the
 right destination.
 
 Source of scope: Notion — [Build Plan v1 — bikinlapak Seller app](https://app.notion.com/p/3fa1608449d581d88c2dff0c6d0f0120)
