@@ -1,0 +1,5 @@
+# Runtime + toolchain base for the bikinlapak front end, built once and
+# pushed to Artifact Registry. App images FROM it, so a deploy never pulls
+# from Docker Hub. Rebuild only on runtime upgrades, then bump the tag
+# (BASE_IMAGE in deploy.yml / Makefile).
+FROM node:24-bookworm-slim
