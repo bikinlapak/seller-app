@@ -1,6 +1,8 @@
 /*
- * Stand-in seller-svc data, mirroring src/seed.rs on the backend so the two
- * stay comparable. Content comes from the design canvas: Jasa Coffee Shop,
+ * Stand-in seller-svc data for SELLER_SVC_MOCK=true, in the shapes of
+ * seller-svc/src/contract.rs. The real backend now computes all of this from
+ * its demo tenant (seller-svc/src/shop/demo.rs) and runs with no cloud
+ * dependency, so prefer it; these fixtures keep the UI buildable offline. Content comes from the design canvas: Jasa Coffee Shop,
  * Arabica Beans, PO-0771, Sumber Kopi.
  *
  * Only used when SELLER_SVC_MOCK=true (see src/lib/server/api/http.ts). Every
@@ -76,7 +78,10 @@ const REORDER_THREAD: Thread = {
 					'4 kg on hand, selling 1.6 kg a day, out by Thursday. Sumber Kopi delivers in 2 days, arriving Wednesday.',
 				quantity: 12,
 				unit: 'kg',
-				token: 'tok_suggestion_0771'
+				token: 'tok_suggestion_0771',
+				state: 'open',
+				approveLabel: 'Approve',
+				editable: true
 			}
 		},
 		{
@@ -93,8 +98,20 @@ const REORDER_THREAD: Thread = {
 			time: '07.04',
 			text: "12 kg covers 7 days plus a buffer. Closed two days, 9 kg is enough. I've noted the closure for next time.",
 			actions: [
-				{ label: 'Order 9 kg', token: 'tok_suggestion_0771_9', primary: true },
-				{ label: 'Keep 12 kg', token: null, primary: false }
+				{
+					label: 'Order 9 kg',
+					token: 'tok_suggestion_0771_9',
+					primary: true,
+					quantity: 9,
+					unit: 'kg'
+				},
+				{
+					label: 'Keep 12 kg',
+					token: 'tok_suggestion_0771',
+					primary: false,
+					quantity: 12,
+					unit: 'kg'
+				}
 			]
 		}
 	]
@@ -129,39 +146,56 @@ const WASTE_THREAD: Thread = {
 				items: [
 					{
 						id: 'i1',
+						productId: 'p2',
 						name: 'Butter Croissant',
 						quantity: 3,
+						maxQuantity: 14,
 						unit: 'pcs',
 						severity: 'ok',
 						severityLabel: 'still good · 96%',
 						destinations: [
-							{ id: 'donation', label: 'Donate', selected: true },
-							{ id: 'special', label: "Today's special", selected: false },
-							{ id: 'staff', label: 'Staff meal', selected: false }
+							{ id: 'repurposed', label: "Today's special", selected: true },
+							{ id: 'donated', label: 'Donate', selected: false },
+							{ id: 'staff_meal', label: 'Staff meal', selected: false },
+							{ id: 'bsf_or_compost', label: 'Compost / larvae', selected: false },
+							{ id: 'landfill', label: 'Discard', selected: false }
 						]
 					},
 					{
 						id: 'i2',
+						productId: 'p4',
 						name: 'Oat Milk 1 L',
 						quantity: 2,
+						maxQuantity: 4,
 						unit: 'L',
 						severity: 'critical',
 						severityLabel: 'past date · 92%',
 						destinations: [
-							{ id: 'compost', label: 'Compost / larvae', selected: true },
-							{ id: 'discard', label: 'Discard', selected: false }
+							{ id: 'bsf_or_compost', label: 'Compost / larvae', selected: true },
+							{ id: 'landfill', label: 'Discard', selected: false }
 						],
 						warning: 'Past its date: it cannot be sold or donated.'
 					}
 				],
 				uncertain: {
+					itemId: 'i3',
+					label: 'bread',
+					quantity: 1,
+					unit: 'pcs',
 					confidence: 58,
 					candidates: [
-						{ id: 'c1', name: 'Wholemeal Bread' },
-						{ id: 'c2', name: 'Milk Bun' }
+						{ id: 'p8', name: 'Wholemeal Bread' },
+						{ id: 'p9', name: 'Milk Bun' }
+					],
+					destinations: [
+						{ id: 'repurposed', label: "Today's special", selected: true },
+						{ id: 'donated', label: 'Donate', selected: false },
+						{ id: 'landfill', label: 'Discard', selected: false }
 					]
 				},
-				note: 'Photo kept as evidence · location data removed'
+				note: 'Photo kept as evidence · location data removed',
+				token: 'tok_waste_session',
+				state: 'open'
 			}
 		}
 	]
@@ -281,7 +315,7 @@ export const PRODUCTS: ProductList = {
 
 export const STOCK: StockList = {
 	location: 'Main store',
-	summary: { value: 'Rp6.8M', lowCount: 3, expiringCount: 2 },
+	summary: { value: 'Rp6.8M', lowCount: 1, expiringCount: 2 },
 	rows: [
 		{
 			id: 's1',
@@ -291,7 +325,8 @@ export const STOCK: StockList = {
 			severity: 'critical',
 			left: 'Out Thursday · 2.5 days',
 			right: 'PO-0771 arrives Wednesday',
-			rightImportant: true
+			rightImportant: true,
+			tags: ['low', 'on_order']
 		},
 		{
 			id: 's2',
@@ -301,7 +336,8 @@ export const STOCK: StockList = {
 			severity: 'warn',
 			left: '3 L expire Thursday',
 			right: '2 lots',
-			rightImportant: false
+			rightImportant: false,
+			tags: ['expiring']
 		},
 		{
 			id: 's3',
@@ -311,7 +347,8 @@ export const STOCK: StockList = {
 			severity: 'warn',
 			left: 'Expires tomorrow · discount 17.00',
 			right: 'lot L-889',
-			rightImportant: false
+			rightImportant: false,
+			tags: ['expiring']
 		},
 		{
 			id: 's4',
@@ -321,7 +358,8 @@ export const STOCK: StockList = {
 			severity: 'ok',
 			left: 'Fine · 11 days',
 			right: 'auto-approved',
-			rightImportant: false
+			rightImportant: false,
+			tags: []
 		}
 	]
 };

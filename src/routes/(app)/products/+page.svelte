@@ -62,18 +62,12 @@
 	{/each}
 </main>
 
-<!-- Floating actions: "from a photo" goes through chat, or a plain form. -->
+<!-- New products come in through chat (photo to listing) or worksh.io. -->
 <div class="sticky bottom-0 flex flex-col items-end gap-2 px-4 pb-2">
 	<a
 		href="/assistant/product"
 		class="flex min-h-11 items-center gap-2 rounded-full border border-line-strong bg-surface px-3.5 text-sm font-semibold text-ink"
 	>
 		<Icon name="camera" size={18} />From a photo (AI)
-	</a>
-	<a
-		href="/products/new"
-		class="flex min-h-[52px] items-center gap-2 rounded-full bg-kunyit-400 px-4.5 text-[15px] font-bold text-kunyit-900"
-	>
-		<Icon name="plus" size={20} weight={2.5} />Add product
 	</a>
 </div>

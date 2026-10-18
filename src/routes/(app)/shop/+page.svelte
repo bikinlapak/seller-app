@@ -23,7 +23,9 @@
 		>
 	</section>
 
-	<p class="m-0 text-sm text-ink-faint">
-		The online shop page and shipping follow — see docs/plan/05-phases.md.
-	</p>
+	<a
+		href="/reports"
+		class="flex min-h-11 items-center justify-between rounded-row border border-line bg-surface px-3.5 text-sm font-semibold text-ink"
+		>Impact and waste report <span aria-hidden="true" class="text-ink-muted">›</span></a
+	>
 </main>

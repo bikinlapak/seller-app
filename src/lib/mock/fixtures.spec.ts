@@ -55,17 +55,17 @@ describe('threads', () => {
 		if (card?.type !== 'waste_card') throw new Error('wrong message type');
 		for (const item of card.card.items.filter((i) => i.severity === 'critical')) {
 			const ids = item.destinations.map((d) => d.id);
-			expect(ids).not.toContain('donation');
-			expect(ids).not.toContain('special');
+			expect(ids).not.toContain('donated');
+			expect(ids).not.toContain('repurposed');
 			expect(item.warning).toBeTruthy();
 		}
 	});
 
-	it('"discard" is never preselected', () => {
+	it('"discard" (landfill) is never preselected', () => {
 		const card = THREADS.waste.messages.find((m) => m.type === 'waste_card');
 		if (card?.type !== 'waste_card') throw new Error('wrong message type');
 		for (const item of card.card.items) {
-			expect(item.destinations.find((d) => d.id === 'discard')?.selected ?? false).toBe(false);
+			expect(item.destinations.find((d) => d.id === 'landfill')?.selected ?? false).toBe(false);
 		}
 	});
 
@@ -82,6 +82,13 @@ describe('products and stock', () => {
 	it('severity is always a known value', () => {
 		for (const p of PRODUCTS.products) expect(SEVERITIES).toContain(p.stockSeverity);
 		for (const r of STOCK.rows) expect(SEVERITIES).toContain(r.severity);
+	});
+
+	it('the summary tiles count the same tagged rows the filters show', () => {
+		expect(STOCK.summary.lowCount).toBe(STOCK.rows.filter((r) => r.tags.includes('low')).length);
+		expect(STOCK.summary.expiringCount).toBe(
+			STOCK.rows.filter((r) => r.tags.includes('expiring')).length
+		);
 	});
 
 	it('stock bar percentages are within 0-100', () => {

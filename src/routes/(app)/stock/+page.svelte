@@ -8,9 +8,10 @@
 
 	const visible = $derived(
 		(data.list?.rows ?? []).filter((row) => {
-			if (filter === 'Running low') return row.severity === 'critical';
-			if (filter === 'Expiring') return row.left.toLowerCase().includes('expire');
-			if (filter === 'On order') return row.right.startsWith('PO-');
+			// The same tags the summary tiles count, so tile and filter agree.
+			if (filter === 'Running low') return row.tags.includes('low');
+			if (filter === 'Expiring') return row.tags.includes('expiring');
+			if (filter === 'On order') return row.tags.includes('on_order');
 			return true;
 		})
 	);
@@ -21,9 +22,9 @@
 <header class="flex flex-col gap-3 px-4 pt-4 pb-2">
 	<div class="flex items-center justify-between gap-2">
 		<h1 class="m-0 font-display text-[26px] font-normal text-pine-600">Stock</h1>
-		<button
-			class="min-h-10 flex-none rounded-action border border-line-strong bg-surface px-3 text-[13px] font-semibold text-ink"
-			>{data.list?.location ?? 'All locations'}</button
+		<span
+			class="flex min-h-10 flex-none items-center rounded-action border border-line-strong bg-surface px-3 text-[13px] font-semibold text-ink"
+			>{data.list?.location ?? 'All locations'}</span
 		>
 	</div>
 
