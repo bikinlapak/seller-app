@@ -53,7 +53,8 @@
 	const stateNote = {
 		open: '',
 		approved: 'Approved.',
-		rejected: 'Rejected. Nothing was changed.'
+		rejected: 'Rejected. Nothing was changed.',
+		replaced: 'Replaced by a newer suggestion below, after the stock count.'
 	} as const;
 </script>
 

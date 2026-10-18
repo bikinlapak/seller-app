@@ -42,9 +42,9 @@ export function runAction(
 		idempotencyKey,
 		mock: () => ({
 			title: 'PO-0772 submitted',
-			detail: `${body.quantity ?? 0} kg Arabica Beans 1 kg · Sumber Kopi · arrives Tuesday`,
+			detail: `${body.quantity ?? 0} kg Bread Flour · Tepung Jaya · arrives Tuesday`,
 			waUrl: 'https://wa.me/6281200000001',
-			links: [{ label: 'View product', href: '/products/p3' }]
+			links: [{ label: 'View product', href: '/products/p7' }]
 		})
 	});
 }
@@ -73,10 +73,15 @@ export function reportAnswer(
 	return send(fetch, 'POST', '/v1/assistant/report', { topic, messageId, reason: '' });
 }
 
-/** Raw image bytes (already re-encoded on the device, metadata stripped). */
-export function uploadWastePhoto(
+/**
+ * Raw image bytes (already re-encoded on the device, metadata stripped).
+ * A waste photo goes to the leftovers flow, a stock photo to the count.
+ */
+export function uploadPhoto(
 	fetch: typeof globalThis.fetch,
+	purpose: 'waste' | 'stock',
 	bytes: Uint8Array
-): Promise<Result<{ sessionId: string; photoId: string }>> {
-	return send(fetch, 'POST', '/v1/waste/photos', bytes);
+): Promise<Result<{ sessionId: string; photoId: string; detected: number }>> {
+	const path = purpose === 'stock' ? '/v1/stock/photos' : '/v1/waste/photos';
+	return send(fetch, 'POST', path, bytes);
 }

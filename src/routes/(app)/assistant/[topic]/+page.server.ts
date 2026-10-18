@@ -5,7 +5,7 @@ import {
 	runAction,
 	sendMessage,
 	thread,
-	uploadWastePhoto,
+	uploadPhoto,
 	type ActionBody
 } from '#lib/server/api/assistant.js';
 
@@ -91,6 +91,29 @@ export const actions = {
 		return act(fetch, form, { items });
 	},
 
+	/*
+	 * Stock count: one count per product. An unsure item counts toward the
+	 * product the merchant picked; "not ours" is skipped.
+	 */
+	count: async ({ fetch, request }) => {
+		const form = await request.formData();
+		const totals = new Map<string, number>();
+		for (const productId of form.getAll('line').map(String)) {
+			totals.set(productId, int(form, `qty-${productId}`));
+		}
+		for (const itemId of form.getAll('unsure').map(String)) {
+			const pick = str(form, `pick-${itemId}`);
+			if (!pick || pick === 'none') continue;
+			totals.set(pick, (totals.get(pick) ?? 0) + int(form, `qty-${itemId}`));
+		}
+		const lines = [...totals].map(([productId, quantity]) => ({ productId, quantity }));
+		if (lines.some((l) => !(l.quantity >= 0))) {
+			return fail(400, { message: 'Counts must be whole numbers, 0 or more.' });
+		}
+		if (lines.length === 0) return fail(400, { message: 'Nothing to count.' });
+		return act(fetch, form, { lines });
+	},
+
 	/* Donation: the checklist is a hard gate here and again in seller-svc. */
 	donate: async ({ fetch, request }) => {
 		const form = await request.formData();
@@ -114,14 +137,15 @@ export const actions = {
 	},
 
 	/* A waste photo. The browser has already re-encoded it without EXIF. */
-	photo: async ({ fetch, request }) => {
+	photo: async ({ fetch, request, params }) => {
 		const form = await request.formData();
 		const file = form.get('photo');
 		if (!(file instanceof File) || file.size === 0) {
 			return fail(400, { message: 'Choose or take a photo first.' });
 		}
 		if (file.size > MAX_PHOTO) return fail(413, { message: 'That photo is too large.' });
-		const res = await uploadWastePhoto(fetch, new Uint8Array(await file.arrayBuffer()));
+		const purpose = params.topic === 'stock' ? 'stock' : 'waste';
+		const res = await uploadPhoto(fetch, purpose, new Uint8Array(await file.arrayBuffer()));
 		if (!res.ok) return fail(res.status, { message: res.error.message });
 		return { uploaded: res.data.sessionId };
 	},

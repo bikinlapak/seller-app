@@ -2,6 +2,7 @@
 	import { enhance } from '$app/forms';
 	import AgentMeta from '#lib/components/chat/AgentMeta.svelte';
 	import Bubble from '#lib/components/chat/Bubble.svelte';
+	import CountCard from '#lib/components/chat/CountCard.svelte';
 	import DonationCard from '#lib/components/chat/DonationCard.svelte';
 	import PhotoMessage from '#lib/components/chat/PhotoMessage.svelte';
 	import ResultCard from '#lib/components/chat/ResultCard.svelte';
@@ -47,7 +48,7 @@
 		{#if message.author === 'agent'}
 			<AgentMeta
 				time={message.time}
-				source={message.type === 'waste_card' ? source : null}
+				source={message.type === 'waste_card' || message.type === 'count_card' ? source : null}
 				messageId={message.id}
 				reported={reported === message.id}
 			/>
@@ -65,6 +66,8 @@
 			<WasteCard card={message.card} />
 		{:else if message.type === 'donation_card'}
 			<DonationCard card={message.card} />
+		{:else if message.type === 'count_card'}
+			<CountCard card={message.card} />
 		{:else if message.type === 'text'}
 			<Bubble author={message.author}>
 				{message.text}

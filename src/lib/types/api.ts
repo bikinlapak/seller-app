@@ -17,7 +17,7 @@ export type Idr = number;
 export type Severity = 'ok' | 'warn' | 'critical';
 
 /** Lifecycle of any card that carries an action token. */
-export type CardState = 'open' | 'approved' | 'rejected';
+export type CardState = 'open' | 'approved' | 'rejected' | 'replaced';
 
 export type Shop = {
 	name: string;
@@ -67,7 +67,8 @@ export type Message =
 	| { id: string; author: 'agent'; type: 'suggestion_card'; time: string; card: SuggestionCard }
 	| { id: string; author: 'agent'; type: 'result_card'; time: string; card: ResultCard }
 	| { id: string; author: 'agent'; type: 'waste_card'; time: string; card: WasteCard }
-	| { id: string; author: 'agent'; type: 'donation_card'; time: string; card: DonationCard };
+	| { id: string; author: 'agent'; type: 'donation_card'; time: string; card: DonationCard }
+	| { id: string; author: 'agent'; type: 'count_card'; time: string; card: CountCard };
 
 export type DetectionBox = {
 	/* Percentages of the photo, so they survive any screen width. */
@@ -101,7 +102,7 @@ export type CardLine = {
 export type SuggestionCard = {
 	label: string; // "Reorder suggestion"
 	confidence: string; // "High confidence"
-	title: string; // "Arabica Beans 1 kg · order 12 kg"
+	title: string; // "Bread Flour · order 175 kg"
 	reason: string;
 	/* The proposed quantity; the stepper must not exceed it. */
 	quantity: number;
@@ -118,7 +119,7 @@ export type Link = { label: string; href: string };
 /** The card shown after the executor has written. */
 export type ResultCard = {
 	title: string; // "PO-0772 submitted"
-	detail: string; // "9 kg Arabica Beans 1 kg · Sumber Kopi · arrives Tuesday"
+	detail: string; // "125 kg Bread Flour · Tepung Jaya · arrives Tuesday"
 	waUrl?: string;
 	links?: Link[];
 };
@@ -171,6 +172,32 @@ export type DonationCard = {
 	token: string;
 	state: CardState;
 	receiptHref?: string;
+};
+
+/** Stock count from a photo: counted vs system, and what it means for ordering. */
+export type CountCard = {
+	label: string;
+	lines: {
+		productId: string;
+		name: string;
+		unit: string;
+		counted: number; // from the photo; editable
+		system: number; // what the ledger says
+		differenceLabel: string;
+		coverLabel: string;
+		needLabel: string; // "Order 12 kg · runs out Tuesday"
+		severity: Severity;
+	}[];
+	unsure: {
+		itemId: string;
+		label: string;
+		quantity: number;
+		candidates: { id: string; name: string }[];
+	}[];
+	unmatched: string[]; // seen, but not in the catalog
+	note: string;
+	token: string;
+	state: CardState;
 };
 
 export type Thread = {

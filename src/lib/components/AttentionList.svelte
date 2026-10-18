@@ -5,7 +5,7 @@
 
 	/*
 	 * "Needs attention today": the most urgent thing, written as a consequence
-	 * ("Arabica beans run out Thursday") rather than a metric. Each row goes
+	 * ("Bread flour runs out Tuesday") rather than a metric. Each row goes
 	 * straight into the thread that handles it.
 	 *
 	 * When nothing is urgent the section is absent — better empty than filled

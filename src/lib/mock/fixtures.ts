@@ -2,8 +2,8 @@
  * Stand-in seller-svc data for SELLER_SVC_MOCK=true, in the shapes of
  * seller-svc/src/contract.rs. The real backend now computes all of this from
  * its demo tenant (seller-svc/src/shop/demo.rs) and runs with no cloud
- * dependency, so prefer it; these fixtures keep the UI buildable offline. Content comes from the design canvas: Jasa Coffee Shop,
- * Arabica Beans, PO-0771, Sumber Kopi.
+ * dependency, so prefer it; these fixtures keep the UI buildable offline. Content mirrors
+ * the demo tenant, Hangat Bakery.
  *
  * Only used when SELLER_SVC_MOCK=true (see src/lib/server/api/http.ts). Every
  * number here pretends to have been computed by the backend: the frontend
@@ -19,7 +19,7 @@ import type {
 } from '#lib/types/api.js';
 
 export const SHOP: Shop = {
-	name: 'Jasa Coffee Shop',
+	name: 'Hangat Bakery (mock)',
 	owner: 'Rima',
 	greeting: 'Morning, Rima.'
 };
@@ -29,14 +29,14 @@ export const HOME: AssistantHome = {
 	attention: [
 		{
 			id: 'a1',
-			title: 'Arabica beans run out Thursday',
-			detail: 'Suggested: order 12 kg',
+			title: 'Bread Flour runs out Tuesday',
+			detail: 'Suggested: order 175 kg',
 			icon: 'stock',
 			href: '/assistant/reorder'
 		},
 		{
 			id: 'a2',
-			title: '14 croissants expire tomorrow',
+			title: '50 pcs of Butter Croissant expire tomorrow',
 			detail: '8 are unlikely to sell',
 			icon: 'expiry',
 			href: '/assistant/expiry'
@@ -51,9 +51,9 @@ export const HOME: AssistantHome = {
 	],
 	commands: [
 		{ label: 'Add a product from a photo', href: '/assistant/product' },
-		{ label: 'How much oat milk is left?', href: '/assistant/stock' },
+		{ label: 'How much butter is left?', href: '/assistant/stock' },
 		{ label: "Photograph today's leftovers", href: '/assistant/waste' },
-		{ label: 'Menu ideas from stock', href: '/assistant/special' },
+		{ label: 'Ideas for day-old bakes', href: '/assistant/special' },
 		{ label: "This week's report", href: '/assistant/report' },
 		{ label: 'Change opening hours', href: '/assistant/shop' }
 	]
@@ -73,10 +73,10 @@ const REORDER_THREAD: Thread = {
 			card: {
 				label: 'Reorder suggestion',
 				confidence: 'High confidence',
-				title: 'Arabica Beans 1 kg · order 12 kg',
+				title: 'Bread Flour · order 175 kg',
 				reason:
-					'4 kg on hand, selling 1.6 kg a day, out by Thursday. Sumber Kopi delivers in 2 days, arriving Wednesday.',
-				quantity: 12,
+					'40 kg on hand, using 22 kg a day, out by Tuesday. Tepung Jaya delivers in 2 days, arriving Tuesday.',
+				quantity: 175,
 				unit: 'kg',
 				token: 'tok_suggestion_0771',
 				state: 'open',
@@ -89,27 +89,27 @@ const REORDER_THREAD: Thread = {
 			author: 'staff',
 			type: 'text',
 			time: '07.03',
-			text: "why 12? we're closed two days next week"
+			text: "why 175? we're closed two days next week"
 		},
 		{
 			id: 'm3',
 			author: 'agent',
 			type: 'text',
 			time: '07.04',
-			text: "12 kg covers 7 days plus a buffer. Closed two days, 9 kg is enough. I've noted the closure for next time.",
+			text: "175 kg covered a normal week plus a buffer. Closed two days, 125 kg is enough. I've saved the closure for future forecasts.",
 			actions: [
 				{
-					label: 'Order 9 kg',
+					label: 'Order 125 kg',
 					token: 'tok_suggestion_0771_9',
 					primary: true,
-					quantity: 9,
+					quantity: 125,
 					unit: 'kg'
 				},
 				{
-					label: 'Keep 12 kg',
+					label: 'Keep 175 kg',
 					token: 'tok_suggestion_0771',
 					primary: false,
-					quantity: 12,
+					quantity: 175,
 					unit: 'kg'
 				}
 			]
@@ -146,10 +146,10 @@ const WASTE_THREAD: Thread = {
 				items: [
 					{
 						id: 'i1',
-						productId: 'p2',
+						productId: 'p1',
 						name: 'Butter Croissant',
 						quantity: 3,
-						maxQuantity: 14,
+						maxQuantity: 50,
 						unit: 'pcs',
 						severity: 'ok',
 						severityLabel: 'still good · 96%',
@@ -163,10 +163,10 @@ const WASTE_THREAD: Thread = {
 					},
 					{
 						id: 'i2',
-						productId: 'p4',
-						name: 'Oat Milk 1 L',
+						productId: 'p9',
+						name: 'Fresh Milk 1 L',
 						quantity: 2,
-						maxQuantity: 4,
+						maxQuantity: 7,
 						unit: 'L',
 						severity: 'critical',
 						severityLabel: 'past date · 92%',
@@ -184,8 +184,8 @@ const WASTE_THREAD: Thread = {
 					unit: 'pcs',
 					confidence: 58,
 					candidates: [
-						{ id: 'p8', name: 'Wholemeal Bread' },
-						{ id: 'p9', name: 'Milk Bun' }
+						{ id: 'p4', name: 'Sourdough Loaf' },
+						{ id: 'p5', name: 'Milk Bread' }
 					],
 					destinations: [
 						{ id: 'repurposed', label: "Today's special", selected: true },
@@ -220,7 +220,7 @@ export const THREADS: Record<string, Thread> = {
 	),
 	stock: brief(
 		'Check and adjust stock',
-		'Oat Milk 1 L is down to 5 L in the main store, across 2 lots. Want me to record an adjustment?'
+		"Fresh Milk 1 L: 5 L usable across 1 lot (2 L past its date). Photograph a shelf or the fridge and I'll count it."
 	),
 	expiry: brief(
 		'Expiring soon',
@@ -232,132 +232,132 @@ export const THREADS: Record<string, Thread> = {
 	),
 	special: brief(
 		"Today's special from stock",
-		"From what's on hand: croissants and oat milk make 6 portions of pudding. Price Rp18,000, recovering Rp108,000."
+		"From what's on hand: day-old croissants, milk and eggs make 8 portions of bread pudding. Price Rp25,000, recovering Rp200,000."
 	),
 	report: brief(
 		'Reports and impact',
 		'This week: Rp12.4M revenue, Rp3.1M profit. Across 9 waste photos, 78% was diverted — up from 61% last week.'
 	),
-	shop: brief('Shop settings', "You're open 07.00–21.00. Which day would you like to change?")
+	shop: brief('Shop settings', "You're open 06.00–20.00. Which day would you like to change?")
 };
 
 export const PRODUCTS: ProductList = {
-	total: 24,
-	categories: ['All', 'Drinks', 'Bakery', 'Ingredients', 'Drafts'],
+	total: 5,
+	categories: ['All', 'Bread', 'Pastries', 'Ingredients'],
 	products: [
 		{
 			id: 'p1',
-			name: 'Palm Sugar Latte 250 ml',
-			price: 35000,
-			priceLabel: 'Rp35,000',
+			name: 'Butter Croissant',
+			price: 18000,
+			priceLabel: 'Rp18,000',
 			subtitle: null,
-			category: 'Drinks',
-			stockLabel: '20 in stock',
-			stockSeverity: 'ok',
-			status: 'New',
-			statusImportant: false,
-			photoColour: '#EAD9C2'
-		},
-		{
-			id: 'p2',
-			name: 'Butter Croissant (box of 4)',
-			price: 60000,
-			priceLabel: 'Rp60,000',
-			subtitle: null,
-			category: 'Bakery',
-			stockLabel: '14 · exp. tomorrow',
+			category: 'Pastries',
+			stockLabel: '50 pcs · exp. tomorrow',
 			stockSeverity: 'warn',
-			status: 'Discount 17.00',
+			status: '30% off 17.00',
 			statusImportant: true,
-			photoColour: '#E8DCC8'
-		},
-		{
-			id: 'p3',
-			name: 'Arabica Beans 1 kg',
-			price: 210000,
-			priceLabel: 'Rp210,000',
-			subtitle: null,
-			category: 'Ingredients',
-			stockLabel: '4 kg',
-			stockSeverity: 'critical',
-			status: 'PO sent',
-			statusImportant: false,
-			photoColour: '#DCCFBD'
+			photoColour: '#E8D3AE'
 		},
 		{
 			id: 'p4',
-			name: 'Oat Milk 1 L',
+			name: 'Sourdough Loaf',
+			price: 45000,
+			priceLabel: 'Rp45,000',
+			subtitle: null,
+			category: 'Bread',
+			stockLabel: '8 loaves',
+			stockSeverity: 'ok',
+			status: 'Active',
+			statusImportant: false,
+			photoColour: '#D6BC94'
+		},
+		{
+			id: 'p6',
+			name: 'Baguette',
+			price: 25000,
+			priceLabel: 'Rp25,000',
+			subtitle: null,
+			category: 'Bread',
+			stockLabel: '14 pcs · exp. today',
+			stockSeverity: 'warn',
+			status: 'Active',
+			statusImportant: false,
+			photoColour: '#DDBF8E'
+		},
+		{
+			id: 'p7',
+			name: 'Bread Flour',
 			price: null,
 			priceLabel: null,
 			subtitle: 'Ingredient · not for sale',
 			category: 'Ingredients',
-			stockLabel: '5 L',
-			stockSeverity: 'warn',
-			status: '2 lots',
-			statusImportant: false,
-			photoColour: '#E6E2D6'
+			stockLabel: '40 kg',
+			stockSeverity: 'critical',
+			status: 'Reorder suggested',
+			statusImportant: true,
+			photoColour: '#EFE9DD'
 		},
 		{
-			id: 'p5',
-			name: 'Palm Sugar Doughnut',
-			price: 15000,
-			priceLabel: 'Rp15,000',
-			subtitle: null,
-			category: 'Bakery',
-			stockLabel: '12 in stock',
-			stockSeverity: 'ok',
-			status: 'Active',
-			statusImportant: false,
-			photoColour: '#EFE0CB'
+			id: 'p9',
+			name: 'Fresh Milk 1 L',
+			price: null,
+			priceLabel: null,
+			subtitle: 'Ingredient · not for sale',
+			category: 'Ingredients',
+			stockLabel: '7 L · past date',
+			stockSeverity: 'critical',
+			status: 'Reorder suggested',
+			statusImportant: true,
+			photoColour: '#F1ECE2'
 		}
 	]
 };
 
 export const STOCK: StockList = {
 	location: 'Main store',
-	summary: { value: 'Rp6.8M', lowCount: 1, expiringCount: 2 },
+	summary: { value: 'Rp4.1M', lowCount: 2, expiringCount: 2 },
 	rows: [
 		{
-			id: 's1',
-			name: 'Arabica Beans 1 kg',
-			quantityLabel: '4 kg',
-			percent: 18,
+			id: 'p7',
+			name: 'Bread Flour',
+			quantityLabel: '40 kg',
+			percent: 13,
 			severity: 'critical',
-			left: 'Out Thursday · 2.5 days',
-			right: 'PO-0771 arrives Wednesday',
-			rightImportant: true,
-			tags: ['low', 'on_order']
+			left: 'Out by Tuesday · 1.8 days',
+			right: 'lot L-101',
+			rightImportant: false,
+			tags: ['low']
 		},
 		{
-			id: 's2',
-			name: 'Oat Milk 1 L',
-			quantityLabel: '5 L',
-			percent: 30,
-			severity: 'warn',
-			left: '3 L expire Thursday',
+			id: 'p9',
+			name: 'Fresh Milk 1 L',
+			quantityLabel: '7 L',
+			percent: 6,
+			severity: 'critical',
+			left: '2 L past date',
 			right: '2 lots',
 			rightImportant: false,
-			tags: ['expiring']
+			tags: ['low', 'expiring']
 		},
 		{
-			id: 's3',
+			id: 'p1',
 			name: 'Butter Croissant',
-			quantityLabel: '14 boxes',
-			percent: 70,
+			quantityLabel: '50 pcs',
+			percent: 14,
 			severity: 'warn',
-			left: 'Expires tomorrow · discount 17.00',
-			right: 'lot L-889',
+			left: '8 pcs expire tomorrow unsold',
+			right: 'lot B-201',
 			rightImportant: false,
 			tags: ['expiring']
 		},
 		{
-			id: 's4',
-			name: 'Palm Sugar 1 kg',
-			quantityLabel: '9 kg',
-			percent: 62,
+			id: 'p11',
+			name: 'Sugar',
+			quantityLabel: '30 kg',
+			percent: 71,
 			severity: 'ok',
-			left: 'Fine · 11 days',
-			right: 'auto-approved',
+			left: 'Fine · 10 days',
+			right: 'lot L-106',
 			rightImportant: false,
 			tags: []
 		}

@@ -23,7 +23,8 @@
 		return () => es.close();
 	});
 
-	const isWaste = $derived(page.params.topic === 'waste');
+	// Waste and stock threads take photos; the others link to the waste flow.
+	const takesPhotos = $derived(page.params.topic === 'waste' || page.params.topic === 'stock');
 </script>
 
 <svelte:head><title>{data.thread.topic} · Shop Assistant</title></svelte:head>
@@ -42,4 +43,4 @@
 	</p>
 {/if}
 
-<Composer upload={isWaste} cameraHref={isWaste ? undefined : '/assistant/waste'} />
+<Composer upload={takesPhotos} cameraHref={takesPhotos ? undefined : '/assistant/waste'} />
