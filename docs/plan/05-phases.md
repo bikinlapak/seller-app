@@ -12,12 +12,23 @@ M (2–3 days) or L (4–5 days) for one engineer.
 Within a phase, build the demo-path screens
 ([00-overview.md](00-overview.md)) before the rest.
 
-> **Progress, 2026-10-15.** A first pass against the design canvas is built and
-> running on mock data: the shell and tokens (Phase 0), the C2/C4/C6 screens
-> (Phase 2 shape, read-only), and the B0/B3/B5 threads including approve →
-> result card (Phase 6 and 7 shape, without SSE or camera). Items below are
-> ticked only where they are genuinely done end to end; a screen that renders
-> from fixtures but has no backend path is called out as such.
+> **Progress, 2026-10-18.** The app now runs on seller-svc's PasStok engine
+> (no mocks needed; `SELLER_SVC_MOCK` still works offline). Built and
+> verified in a browser: computed assistant home; reorder cards (single and
+> grouped by supplier, multi-line editing) → approve / edit / reject → result
+> card; grounded Q&A with inline order buttons; expiry markdown; daily
+> special; waste photo (camera input, on-device re-encode so EXIF never
+> leaves the phone) → editable counts, destinations and "which product?" →
+> write-off; donation card with the checklist as a hard gate → PDF receipt;
+> SSE-driven thread refresh; "Report" on every agent turn; product detail with
+> forecast chart and lots; reports (diversion, destinations, impact, at-risk
+> lots); AI settings that persist; tag-based stock filters that match the
+> tiles; styled error pages. CSRF is enforced in `hooks.server.ts` (Origin or
+> Fetch Metadata) because Chrome omits Origin on same-origin `fetch`.
+>
+> Not built: PWA (manifest, service worker, push), sign-in/onboarding
+> (Phase 1), orders (Phase 3), CSV import, stock opname, supplier/PO screens,
+> photo-to-listing, i18n. Boxes below are ticked only where done end to end.
 
 ---
 

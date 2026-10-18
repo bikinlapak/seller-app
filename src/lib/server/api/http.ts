@@ -1,4 +1,5 @@
 import { SELLER_SVC_AUDIENCE, SELLER_SVC_MOCK, SELLER_SVC_URL } from '$app/env/private';
+import type { ApiError } from '#lib/types/api.js';
 
 /*
  * The only door to seller-svc, and it is called from the server side alone
@@ -94,28 +95,85 @@ export async function get<T>(
 	}
 }
 
-/** Send an action (approve / edit / reject). The form action uses the result. */
-export async function post<T>(
+export type Result<T> = { ok: true; data: T } | { ok: false; status: number; error: ApiError };
+
+const UNREACHABLE: ApiError = {
+	code: 'unreachable',
+	message: 'Could not reach the shop assistant. Try again.'
+};
+
+/**
+ * Send a write and keep the backend's error. Form actions show
+ * `error.message` to the merchant ("food-safety checklist incomplete: …"),
+ * so unlike `get` a failure is not flattened to `null`.
+ */
+export async function send<T>(
 	fetch: typeof globalThis.fetch,
+	method: 'POST' | 'PUT',
 	path: string,
 	body: unknown,
-	idempotencyKey: string,
-	mock: () => T
-): Promise<T | null> {
-	if (useMocks) return mock();
+	opts: { idempotencyKey?: string; mock?: () => T } = {}
+): Promise<Result<T>> {
+	if (useMocks) {
+		return opts.mock
+			? { ok: true, data: opts.mock() }
+			: { ok: false, status: 501, error: { code: 'mock', message: 'Not available in mock mode.' } };
+	}
 	try {
+		const raw = body instanceof Uint8Array;
 		const res = await fetch(sellerSvcUrl(path), {
-			method: 'POST',
+			method,
 			headers: {
-				'content-type': 'application/json',
-				'idempotency-key': idempotencyKey,
+				'content-type': raw ? 'application/octet-stream' : 'application/json',
+				...(opts.idempotencyKey ? { 'idempotency-key': opts.idempotencyKey } : {}),
 				...(await authHeader(fetch))
 			},
-			body: JSON.stringify(body)
+			body: raw ? new Blob([body as Uint8Array<ArrayBuffer>]) : JSON.stringify(body)
 		});
-		return res.ok ? ((await res.json()) as T) : null;
+		const json = await res.json().catch(() => null);
+		if (res.ok) return { ok: true, data: json as T };
+		const error: ApiError = json?.error ?? { code: 'http_' + res.status, message: res.statusText };
+		return { ok: false, status: res.status, error };
 	} catch {
-		return null;
+		return { ok: false, status: 502, error: UNREACHABLE };
+	}
+}
+
+/** Pass a binary response (a photo, a receipt PDF) straight through. */
+export async function passthrough(fetch: typeof globalThis.fetch, path: string): Promise<Response> {
+	if (useMocks) return new Response('Not available in mock mode', { status: 404 });
+	try {
+		const res = await fetch(sellerSvcUrl(path), { headers: await authHeader(fetch) });
+		const headers = new Headers();
+		for (const h of ['content-type', 'content-disposition', 'cache-control']) {
+			const v = res.headers.get(h);
+			if (v) headers.set(h, v);
+		}
+		return new Response(res.body, { status: res.status, headers });
+	} catch {
+		return new Response('Unavailable', { status: 502 });
+	}
+}
+
+/** The live-update stream for one thread, proxied as-is (SSE). */
+export async function stream(
+	fetch: typeof globalThis.fetch,
+	path: string,
+	signal: AbortSignal
+): Promise<Response> {
+	if (useMocks) return new Response(null, { status: 204 });
+	try {
+		const res = await fetch(sellerSvcUrl(path), { headers: await authHeader(fetch), signal });
+		return new Response(res.body, {
+			status: res.status,
+			headers: {
+				'content-type': 'text/event-stream',
+				'cache-control': 'no-cache',
+				'x-accel-buffering': 'no'
+			}
+		});
+	} catch {
+		return new Response(null, { status: 502 });
 	}
 }
 

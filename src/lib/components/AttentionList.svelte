@@ -16,7 +16,17 @@
 	const tiles = {
 		stock: 'bg-pine-100 text-pine-600',
 		expiry: 'bg-kunyit-100 text-kunyit-700',
-		donation: 'bg-sukses-bg text-sukses'
+		donation: 'bg-sukses-bg text-sukses',
+		special: 'bg-kunyit-100 text-kunyit-700',
+		waste: 'bg-pine-100 text-pine-600'
+	} as const;
+
+	const icons = {
+		stock: 'stock',
+		expiry: 'expiry',
+		donation: 'donation',
+		special: 'products',
+		waste: 'camera'
 	} as const;
 </script>
 
@@ -41,7 +51,7 @@
 						tiles[item.icon]
 					]}
 				>
-					<Icon name={item.icon === 'stock' ? 'stock' : item.icon} size={18} />
+					<Icon name={icons[item.icon]} size={18} />
 				</span>
 				<span class="flex flex-1 flex-col gap-0.5">
 					<span class="text-sm font-semibold">{item.title}</span>

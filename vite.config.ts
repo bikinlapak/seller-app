@@ -12,7 +12,11 @@ export default defineConfig({
 				runes: ({ filename }) =>
 					filename.split(/[/\\]/).includes('node_modules') ? undefined : true
 			},
-			adapter: adapter()
+			adapter: adapter(),
+			// The CSRF check lives in src/hooks.server.ts (see lib/server/csrf.ts):
+			// the built-in one only reads Origin, which Chrome omits on
+			// same-origin fetches. '*' is how SvelteKit 3 turns its own check off.
+			csrf: { trustedOrigins: ['*'] }
 		})
 	],
 	test: {

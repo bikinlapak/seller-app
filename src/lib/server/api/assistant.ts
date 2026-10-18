@@ -1,6 +1,6 @@
 import { HOME, THREADS } from '#lib/mock/fixtures.js';
 import type { AssistantHome, ResultCard, Thread } from '#lib/types/api.js';
-import { get, post } from './http.js';
+import { get, send, type Result } from './http.js';
 
 export function home(fetch: typeof globalThis.fetch): Promise<AssistantHome | null> {
 	return get<AssistantHome>(fetch, '/v1/home', () => HOME);
@@ -17,32 +17,66 @@ export function thread(
 	);
 }
 
-export const TOPICS = Object.keys(THREADS);
+/** What a card's form submits with its token. The executor checks all of it. */
+export type ActionBody = {
+	quantity?: number;
+	lines?: { productId: string; quantity: number }[];
+	items?: { itemId: string; quantity: number; destination: string; productId?: string }[];
+	checklist?: Record<string, boolean>;
+	recipientId?: string;
+	pickupWindow?: string;
+};
 
 /**
- * Run an action from a suggestion card. The backend verifies the token and
- * the quantity cap; in mock mode we shape the same result card the executor
- * would return.
+ * Run an action from a card. The backend verifies the token, the tenant,
+ * the caps and single use; we forward the merchant's tap and its idempotency
+ * key, so a retry on a bad connection cannot write twice.
  */
 export function runAction(
 	fetch: typeof globalThis.fetch,
 	token: string,
-	quantity: number,
-	unit: string,
+	body: ActionBody,
 	idempotencyKey: string
-): Promise<ResultCard | null> {
-	return post<ResultCard>(
-		fetch,
-		`/v1/actions/${encodeURIComponent(token)}`,
-		{ quantity },
+): Promise<Result<ResultCard>> {
+	return send<ResultCard>(fetch, 'POST', `/v1/actions/${encodeURIComponent(token)}`, body, {
 		idempotencyKey,
-		() => ({
-			title: 'PO-0771 created',
-			detail: `${quantity} ${unit} · Sumber Kopi · arrives Wednesday`,
-			waUrl: `https://wa.me/?text=${encodeURIComponent(
-				`Hello Sumber Kopi, we'd like to order ${quantity} ${unit} of Arabica (PO-0771).`
-			)}`,
-			poHref: '/stock/s1'
+		mock: () => ({
+			title: 'PO-0772 submitted',
+			detail: `${body.quantity ?? 0} kg Arabica Beans 1 kg · Sumber Kopi · arrives Tuesday`,
+			waUrl: 'https://wa.me/6281200000001',
+			links: [{ label: 'View product', href: '/products/p3' }]
 		})
-	);
+	});
+}
+
+export function rejectAction(
+	fetch: typeof globalThis.fetch,
+	token: string
+): Promise<Result<ResultCard>> {
+	return send<ResultCard>(fetch, 'POST', `/v1/actions/${encodeURIComponent(token)}/reject`, {});
+}
+
+/** The merchant writes; the reply comes back in the updated thread. */
+export function sendMessage(
+	fetch: typeof globalThis.fetch,
+	topic: string,
+	text: string
+): Promise<Result<Thread>> {
+	return send<Thread>(fetch, 'POST', '/v1/assistant/messages', { topic, text });
+}
+
+export function reportAnswer(
+	fetch: typeof globalThis.fetch,
+	topic: string,
+	messageId: string
+): Promise<Result<{ queued: number }>> {
+	return send(fetch, 'POST', '/v1/assistant/report', { topic, messageId, reason: '' });
+}
+
+/** Raw image bytes (already re-encoded on the device, metadata stripped). */
+export function uploadWastePhoto(
+	fetch: typeof globalThis.fetch,
+	bytes: Uint8Array
+): Promise<Result<{ sessionId: string; photoId: string }>> {
+	return send(fetch, 'POST', '/v1/waste/photos', bytes);
 }

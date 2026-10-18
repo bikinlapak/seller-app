@@ -8,12 +8,15 @@
 	 *
 	 * Box positions are percentages, so they do not depend on screen width.
 	 */
-	let { label, boxes }: { label: string; boxes: DetectionBox[] } = $props();
+	let { label, url, boxes }: { label: string; url?: string; boxes: DetectionBox[] } = $props();
 </script>
 
 <figure
-	class="bubble-staff relative m-0 h-[150px] w-[220px] self-end overflow-hidden bg-photo-base"
+	class="bubble-staff relative m-0 h-[165px] w-[220px] flex-none self-end overflow-hidden bg-photo-base"
 >
+	{#if url}
+		<img src={url} alt={label} class="absolute inset-0 size-full object-cover" />
+	{/if}
 	{#each boxes as box, i (i)}
 		<span
 			class={[
@@ -23,7 +26,9 @@
 			style="left: {box.x}%; top: {box.y}%; width: {box.w}%; height: {box.h}%"
 		></span>
 	{/each}
-	<figcaption class="absolute inset-x-0 bottom-2 text-center text-[11px] text-[#D9CDBB]">
+	<figcaption
+		class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/50 to-transparent px-2 pt-4 pb-1 text-right text-[11px] text-white"
+	>
 		{label}
 	</figcaption>
 </figure>

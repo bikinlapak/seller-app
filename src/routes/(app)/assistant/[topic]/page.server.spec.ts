@@ -32,77 +32,96 @@ function status(res: unknown): number | undefined {
 		: undefined;
 }
 
-type TestMessage = {
-	author: string;
-	type: string;
-	text?: string;
-	card?: { detail: string; waUrl: string };
-};
-
-function added(res: unknown): TestMessage[] {
-	if (typeof res !== 'object' || res === null || !('added' in res)) {
-		throw new Error('the action returned no messages');
+function result(res: unknown): { title: string; detail: string; waUrl?: string } {
+	if (typeof res !== 'object' || res === null || !('result' in res)) {
+		throw new Error('the action returned no result');
 	}
-	return (res as { added: TestMessage[] }).added;
+	return (res as { result: { title: string; detail: string; waUrl?: string } }).result;
 }
+
+/*
+ * The thread itself is no longer patched here: seller-svc stores the note and
+ * the result card, and SvelteKit re-runs `load` after the action. What these
+ * tests pin is the translation from form to request and back.
+ */
 
 describe('approve', () => {
 	it('refuses a zero or non-numeric quantity', async () => {
 		for (const quantity of ['0', '-3', 'abc', '']) {
 			const res = await actions.act(
-				request({ token: 'tok', quantity, unit: 'kg', idempotencyKey: 'k' }) as never
+				request({ token: 'tok', quantity, idempotencyKey: 'k' }) as never
 			);
 			expect(status(res), `quantity=${quantity}`).toBe(400);
 		}
 	});
 
 	it('refuses a request with no token', async () => {
-		const res = await actions.act(
-			request({ quantity: '9', unit: 'kg', idempotencyKey: 'k' }) as never
-		);
+		const res = await actions.act(request({ quantity: '9', idempotencyKey: 'k' }) as never);
 		expect(status(res)).toBe(400);
 	});
 
-	it('carries the edited quantity into the result card', async () => {
-		const messages = added(
+	it('returns the executor result for the edited quantity', async () => {
+		const card = result(
 			await actions.act(
-				request({
-					token: 'tok_suggestion_0771_9',
-					quantity: '9',
-					unit: 'kg',
-					idempotencyKey: 'k2'
-				}) as never
+				request({ token: 'tok_suggestion_0771', quantity: '9', idempotencyKey: 'k2' }) as never
 			)
 		);
-		expect(messages).toHaveLength(2);
+		expect(card.title).toMatch(/^PO-/);
+		expect(card.detail).toContain('9 kg');
+	});
 
-		const [note, result] = messages;
-		expect(note.author).toBe('system');
-		expect(note.text).toBe('You approved 9 kg');
-		expect(result.type).toBe('result_card');
-		expect(result.card?.detail).toContain('9 kg');
-		// The supplier message carries the final quantity, not the proposed one.
-		expect(decodeURIComponent(result.card?.waUrl ?? '')).toContain('9 kg');
+	it('refuses a negative line on a grouped order', async () => {
+		const form = new FormData();
+		form.append('token', 'tok');
+		form.append('line', 'p4');
+		form.append('qty-p4', '-1');
+		const res = await actions.act({
+			fetch: globalThis.fetch,
+			request: new Request('http://x', { method: 'POST', body: form })
+		} as never);
+		expect(status(res)).toBe(400);
 	});
 });
 
-describe('reject', () => {
-	it('records the rejection without writing anything', async () => {
-		const messages = added(await actions.reject(request({ idempotencyKey: 'k3' }) as never));
-		expect(messages).toHaveLength(1);
-		expect(messages[0].author).toBe('system');
-		expect(messages[0].text).toContain('rejected');
+describe('waste', () => {
+	it('refuses an item without a destination', async () => {
+		const form = new FormData();
+		form.append('token', 'tok');
+		form.append('item', 'i1');
+		form.append('qty-i1', '2');
+		const res = await actions.waste({
+			fetch: globalThis.fetch,
+			request: new Request('http://x', { method: 'POST', body: form })
+		} as never);
+		expect(status(res)).toBe(400);
+	});
+
+	it('skips an item marked "not one of our products"', async () => {
+		const form = new FormData();
+		form.append('token', 'tok');
+		form.append('item', 'i3');
+		form.append('pick-i3', 'none');
+		const res = await actions.waste({
+			fetch: globalThis.fetch,
+			request: new Request('http://x', { method: 'POST', body: form })
+		} as never);
+		// Nothing left to record once the only item is skipped.
+		expect(status(res)).toBe(400);
 	});
 });
 
 describe('send a message', () => {
 	it('refuses an empty message', async () => {
-		expect(status(await actions.send(request({ message: '   ' }) as never))).toBe(400);
+		expect(
+			status(
+				await actions.send({ ...request({ message: '   ' }), params: { topic: 'stock' } } as never)
+			)
+		).toBe(400);
 	});
+});
 
-	it('appends the merchant message to the thread', async () => {
-		const messages = added(await actions.send(request({ message: 'how much oat milk?' }) as never));
-		expect(messages[0].author).toBe('staff');
-		expect(messages[0].text).toBe('how much oat milk?');
+describe('photo', () => {
+	it('refuses a submit with no photo', async () => {
+		expect(status(await actions.photo(request({}) as never))).toBe(400);
 	});
 });
