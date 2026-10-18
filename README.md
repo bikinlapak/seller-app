@@ -39,7 +39,7 @@ HOST_HEADER=x-forwarded-host
 Cloud Run's frontend sets both headers; the service env (managed by Terraform
 in `../seller-svc/infra/run.tf`) tells the adapter to trust them. CSRF checks
 are skipped in `npm run dev`, so this only bites in production builds — and it
-shows up as every *Approve* button failing.
+shows up as every _Approve_ button failing.
 
 ### Manual deploy to Cloud Run
 
@@ -74,15 +74,15 @@ make release       # same, but builds locally (needs docker with BuildKit)
 make health        # verify: 200 on the public app
 ```
 
-| Target | What it does |
-| ------ | ------------ |
-| `grants` | Owner-only: gives a developer AR writer + run.developer + actAs on the runtime SA |
+| Target                      | What it does                                                                         |
+| --------------------------- | ------------------------------------------------------------------------------------ |
+| `grants`                    | Owner-only: gives a developer AR writer + run.developer + actAs on the runtime SA    |
 | `auth` / `base` / `vm-base` | AR docker auth; verify-or-build `bikinlapak-front-base:v1.0` (once per runtime bump) |
-| `build` / `vm-build` | Thin app image (`Dockerfile.app`), tagged with the commit SHA |
-| `push` / `vm-push` | Push to Artifact Registry |
-| `deploy` | `gcloud run deploy` a new public revision (explicit `--service-account`) |
-| `health` | Plain public `curl /` |
-| `release` / `vm-release` | The whole chain |
+| `build` / `vm-build`        | Thin app image (`Dockerfile.app`), tagged with the commit SHA                        |
+| `push` / `vm-push`          | Push to Artifact Registry                                                            |
+| `deploy`                    | `gcloud run deploy` a new public revision (explicit `--service-account`)             |
+| `health`                    | Plain public `curl /`                                                                |
+| `release` / `vm-release`    | The whole chain                                                                      |
 
 The `vm-*` targets sync the build context to the runner VM
 (`github-runner`, asia-southeast1-c) and run `scripts/vm-*.sh` there — no
