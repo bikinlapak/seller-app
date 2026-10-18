@@ -9,8 +9,12 @@
 	 * hidden there — the same as artboards B1–B9.
 	 */
 	const bar = $derived(!page.url.pathname.startsWith('/assistant/'));
+	// The assistant home and every thread end in the composer: keep it pinned.
+	const chat = $derived(
+		page.url.pathname === '/assistant' || page.url.pathname.startsWith('/assistant/')
+	);
 </script>
 
-<AppShell {bar}>
+<AppShell {bar} {chat}>
 	{@render children()}
 </AppShell>

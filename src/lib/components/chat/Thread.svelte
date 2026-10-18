@@ -41,7 +41,7 @@
 	bind:this={list}
 	aria-live="polite"
 	aria-label="Conversation with the Shop Assistant"
-	class="flex flex-1 flex-col gap-2 overflow-y-auto px-4 py-3"
+	class="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto overscroll-contain px-4 py-3"
 >
 	{#each messages as message (message.id)}
 		{#if message.author === 'agent'}

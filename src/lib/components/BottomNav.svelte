@@ -10,7 +10,7 @@
 -->
 <nav
 	aria-label="Main menu"
-	class="grid grid-cols-5 border-t border-line bg-surface px-1 pt-1.5"
+	class="sticky bottom-0 z-10 grid flex-none grid-cols-5 border-t border-line bg-surface px-1 pt-1.5"
 	style="padding-bottom: calc(0.875rem + env(safe-area-inset-bottom, 0px))"
 >
 	{#each NAV_ITEMS as item (item.href)}

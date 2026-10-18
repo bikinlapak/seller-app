@@ -12,7 +12,9 @@
 {#if data.home}
 	<ChatHeader shop={data.home.shop} settingsHref="/me" />
 
-	<main class="flex flex-1 flex-col gap-3 px-4 py-3.5">
+	<main
+		class="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto overscroll-contain px-4 py-3.5 *:flex-none"
+	>
 		<h1 class="m-0 font-display text-2xl font-normal text-pine-600">{data.home.shop.greeting}</h1>
 		<AttentionList attention={data.home.attention} />
 		<QuickCommands commands={data.home.commands} />

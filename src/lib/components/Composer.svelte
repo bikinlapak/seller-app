@@ -78,7 +78,7 @@
 			await update();
 		};
 	}}
-	class="flex items-center gap-2 border-t border-line bg-surface px-3 pt-2.5"
+	class="flex flex-none items-center gap-2 border-t border-line bg-surface px-3 pt-2.5"
 	style="padding-bottom: calc(1.125rem + env(safe-area-inset-bottom, 0px))"
 >
 	{#if cameraHref}

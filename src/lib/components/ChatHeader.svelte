@@ -10,7 +10,7 @@
 	}: { shop?: Shop; back?: string; title?: string; settingsHref?: string } = $props();
 </script>
 
-<header class="flex items-center gap-2 border-b border-line bg-surface py-2.5 pr-3 pl-1">
+<header class="flex flex-none items-center gap-2 border-b border-line bg-surface py-2.5 pr-3 pl-1">
 	{#if back}
 		<a
 			href={back}
