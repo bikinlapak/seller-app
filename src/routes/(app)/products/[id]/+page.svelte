@@ -25,10 +25,21 @@
 
 <main class="flex flex-1 flex-col gap-3 px-4 py-3">
 	<section class="flex items-center gap-3">
-		<span
-			class="flex size-16 flex-none items-center justify-center rounded-field text-[10px] text-ink-muted"
-			style="background: {d.product.photoColour}">[PHOTO]</span
-		>
+		{#if d.product.photoUrl}
+			<img
+				src={d.product.photoUrl}
+				alt={d.product.name}
+				width="64"
+				height="64"
+				class="size-16 flex-none rounded-field object-cover"
+				style="background: {d.product.photoColour}"
+			/>
+		{:else}
+			<span
+				class="flex size-16 flex-none items-center justify-center rounded-field text-[10px] text-ink-muted"
+				style="background: {d.product.photoColour}">[PHOTO]</span
+			>
+		{/if}
 		<div class="flex min-w-0 flex-col gap-0.5">
 			<span class="text-[15px] font-bold">{d.product.name}</span>
 			<span class="text-sm text-ink-label">{d.product.priceLabel ?? d.product.subtitle}</span>

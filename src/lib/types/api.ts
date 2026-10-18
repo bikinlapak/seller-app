@@ -220,7 +220,8 @@ export type Product = {
 	stockSeverity: Severity;
 	status: string; // "Active", "30% off 17.00", "PO-0772 sent"
 	statusImportant: boolean;
-	photoColour: string; // placeholder until real images exist
+	photoColour: string; // tile background; the whole tile when there is no photo
+	photoUrl?: string | null;
 };
 
 export type ProductList = {
